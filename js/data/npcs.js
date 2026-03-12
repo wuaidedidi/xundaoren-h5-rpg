@@ -44,11 +44,15 @@ export const NPCS = {
         size: 1.1,
         position: { x: -10, y: 0, z: 5 },
         type: 'craft',
+        shopItems: ['basicSword', 'fineSword', 'basicRobe', 'fineRobe', 'basicRing'],
         dialogs: {
             default: {
-                text: '哈哈！来找我打造装备吗？可惜现在材料不够，等你收集够了再来吧！',
+                text: '哈哈！我是铁匠王大锤，有什么需要帮忙的？',
                 options: [
-                    { text: '好的', action: 'close' }
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '出售物品', action: 'openSell' },
+                    { text: '修理装备', action: 'openRepair' },
+                    { text: '告辞', action: 'close' }
                 ]
             }
         }
