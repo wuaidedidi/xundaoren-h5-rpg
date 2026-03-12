@@ -1,5 +1,6 @@
 /* ===============================================
    寻道人 - 主样式文件
+   全部使用相对单位：vw/vh/rem
    =============================================== */
 
 /* CSS变量定义 */
@@ -8,13 +9,13 @@
     --primary-color: #8b5cf6;
     --primary-dark: #6d28d9;
     --primary-light: #a78bfa;
-    
+
     /* 功能色 */
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
     --info-color: #3b82f6;
-    
+
     /* HP/MP颜色 */
     --hp-color: #22c55e;
     --hp-bg: #166534;
@@ -22,41 +23,50 @@
     --mp-bg: #1e40af;
     --exp-color: #eab308;
     --exp-bg: #713f12;
-    
+
     /* 背景色 */
     --bg-dark: #0f0f1a;
     --bg-medium: #1a1a2e;
     --bg-light: #252540;
     --bg-panel: rgba(26, 26, 46, 0.95);
-    
+
     /* 文字色 */
     --text-primary: #ffffff;
     --text-secondary: #a0a0b0;
     --text-muted: #606070;
-    
+
     /* 边框 */
     --border-color: rgba(139, 92, 246, 0.3);
     --border-glow: rgba(139, 92, 246, 0.6);
-    
+
     /* 阴影 */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
-    
-    /* 圆角 */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-    
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 1.25rem rgba(139, 92, 246, 0.3);
+
+    /* 圆角 - 使用rem */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
     /* 过渡 */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
-    
+
     /* 字体 */
     --font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+
+    /* 基础尺寸变量（由JS动态设置） */
+    --vw: 1vw;
+    --vh: 1vh;
+    --rem: 1rem;
+    --safe-top: 0px;
+    --safe-bottom: 0px;
+    --safe-left: 0px;
+    --safe-right: 0px;
 }
 
 /* 基础重置 */
@@ -71,7 +81,7 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: var(--font-family);
-    font-size: 14px;
+    font-size: calc(var(--rem) * 0.875);
     color: var(--text-primary);
     background: var(--bg-dark);
     user-select: none;
@@ -88,8 +98,8 @@ html, body {
    =============================================== */
 #game-container {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
 }
 
@@ -97,8 +107,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 1;
 }
 
@@ -109,8 +119,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -124,46 +134,47 @@ html, body {
 }
 
 .game-title {
-    font-size: 72px;
+    font-size: calc(var(--rem) * 4.5);
     font-weight: bold;
     background: linear-gradient(135deg, var(--primary-light), #fff, var(--primary-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
-    margin-bottom: 16px;
-    letter-spacing: 8px;
+    text-shadow: 0 0 calc(var(--rem) * 2.5) rgba(139, 92, 246, 0.5);
+    margin-bottom: calc(var(--rem) * 1);
+    letter-spacing: calc(var(--rem) * 0.5);
 }
 
 .subtitle {
-    font-size: 18px;
+    font-size: calc(var(--rem) * 1.125);
     color: var(--text-secondary);
-    margin-bottom: 40px;
-    letter-spacing: 4px;
+    margin-bottom: calc(var(--rem) * 2.5);
+    letter-spacing: calc(var(--rem) * 0.25);
 }
 
 .loading-bar {
-    width: 300px;
-    height: 8px;
+    width: calc(var(--vw) * 80);
+    max-width: calc(var(--rem) * 18.75);
+    height: calc(var(--rem) * 0.5);
     background: var(--bg-light);
-    border-radius: 4px;
-    margin: 0 auto 20px;
+    border-radius: var(--radius-sm);
+    margin: 0 auto calc(var(--rem) * 1.25);
     overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 calc(var(--rem) * 0.125) calc(var(--rem) * 0.25) rgba(0, 0, 0, 0.3);
 }
 
 .loading-progress {
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     transition: width 0.3s ease;
-    box-shadow: 0 0 10px var(--primary-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) var(--primary-color);
 }
 
 .loading-text {
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: calc(var(--rem) * 0.875);
 }
 
 /* ===============================================
@@ -173,8 +184,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 900;
     display: flex;
     align-items: center;
@@ -188,31 +199,32 @@ html, body {
 }
 
 .menu-subtitle {
-    font-size: 16px;
+    font-size: calc(var(--rem) * 1);
     color: var(--text-secondary);
-    margin-bottom: 50px;
-    letter-spacing: 6px;
+    margin-bottom: calc(var(--rem) * 3);
+    letter-spacing: calc(var(--rem) * 0.375);
 }
 
 .menu-buttons {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-bottom: 40px;
+    gap: calc(var(--rem) * 1);
+    margin-bottom: calc(var(--rem) * 2.5);
 }
 
 .menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    width: 280px;
-    padding: 16px 32px;
-    font-size: 16px;
+    gap: calc(var(--rem) * 0.75);
+    width: calc(var(--vw) * 75);
+    max-width: calc(var(--rem) * 17.5);
+    padding: calc(var(--rem) * 1) calc(var(--rem) * 2);
+    font-size: calc(var(--rem) * 1);
     font-weight: 500;
     color: var(--text-primary);
     background: var(--bg-light);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all var(--transition-normal);
@@ -222,7 +234,7 @@ html, body {
 .menu-btn:hover {
     background: var(--bg-medium);
     border-color: var(--primary-color);
-    transform: translateY(-2px);
+    transform: translateY(calc(var(--rem) * -0.125));
     box-shadow: var(--shadow-glow);
 }
 
@@ -244,12 +256,12 @@ html, body {
 }
 
 .btn-icon {
-    font-size: 20px;
+    font-size: calc(var(--rem) * 1.25);
 }
 
 .menu-footer {
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
 }
 
 /* ===============================================
@@ -261,8 +273,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 910;
     display: flex;
     align-items: center;
@@ -274,11 +286,12 @@ html, body {
 .save-content,
 .settings-content {
     background: var(--bg-panel);
-    padding: 40px;
+    padding: calc(var(--rem) * 2.5);
     border-radius: var(--radius-xl);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     box-shadow: var(--shadow-lg);
-    min-width: 400px;
+    width: calc(var(--vw) * 90);
+    max-width: calc(var(--rem) * 25);
     animation: scaleIn 0.3s ease;
 }
 
@@ -286,28 +299,28 @@ html, body {
 .save-content h2,
 .settings-content h2 {
     text-align: center;
-    margin-bottom: 30px;
-    font-size: 24px;
+    margin-bottom: calc(var(--rem) * 1.875);
+    font-size: calc(var(--rem) * 1.5);
     color: var(--primary-light);
 }
 
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: calc(var(--rem) * 1.5);
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
     color: var(--text-secondary);
 }
 
 .form-group input[type="text"] {
     width: 100%;
-    padding: 14px 16px;
-    font-size: 16px;
+    padding: calc(var(--rem) * 0.875) calc(var(--rem) * 1);
+    font-size: calc(var(--rem) * 1);
     color: var(--text-primary);
     background: var(--bg-dark);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-md);
     outline: none;
     transition: border-color var(--transition-fast);
@@ -316,7 +329,7 @@ html, body {
 
 .form-group input[type="text"]:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) rgba(139, 92, 246, 0.2);
 }
 
 .form-group input[type="text"]::placeholder {
@@ -327,25 +340,25 @@ html, body {
 .save-buttons,
 .settings-buttons {
     display: flex;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
     justify-content: center;
 }
 
 /* 存档项 */
 .saves-container {
-    max-height: 300px;
+    max-height: calc(var(--vh) * 40);
     overflow-y: auto;
-    margin-bottom: 20px;
+    margin-bottom: calc(var(--rem) * 1.25);
 }
 
 .save-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    margin-bottom: 12px;
+    padding: calc(var(--rem) * 1);
+    margin-bottom: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -362,22 +375,22 @@ html, body {
 
 .save-name {
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: calc(var(--rem) * 0.25);
 }
 
 .save-details {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-muted);
 }
 
 .save-actions {
     display: flex;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
 }
 
 .save-actions button {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: calc(var(--rem) * 0.5) calc(var(--rem) * 0.75);
+    font-size: calc(var(--rem) * 0.75);
     border-radius: var(--radius-sm);
     cursor: pointer;
     border: none;
@@ -397,20 +410,20 @@ html, body {
 .no-saves {
     text-align: center;
     color: var(--text-muted);
-    padding: 40px;
+    padding: calc(var(--rem) * 2.5);
 }
 
 /* 设置项 */
 .settings-form {
-    margin-bottom: 24px;
+    margin-bottom: calc(var(--rem) * 1.5);
 }
 
 .setting-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
+    padding: calc(var(--rem) * 0.75) 0;
+    border-bottom: calc(var(--rem) * 0.0625) solid var(--border-color);
 }
 
 .setting-item:last-child {
@@ -418,18 +431,18 @@ html, body {
 }
 
 .setting-item select {
-    padding: 8px 16px;
+    padding: calc(var(--rem) * 0.5) calc(var(--rem) * 1);
     background: var(--bg-dark);
     color: var(--text-primary);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-family: inherit;
 }
 
 .setting-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: calc(var(--rem) * 1.25);
+    height: calc(var(--rem) * 1.25);
     cursor: pointer;
 }
 
@@ -440,8 +453,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 100;
     pointer-events: none;
 }
@@ -459,76 +472,78 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 16px 20px;
+    padding: calc(var(--rem) * 1);
+    padding-top: calc(var(--rem) * 1 + var(--safe-top));
     background: linear-gradient(180deg, rgba(15, 15, 26, 0.9) 0%, transparent 100%);
 }
 
 .player-info {
     display: flex;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
 }
 
 .avatar {
-    width: 60px;
-    height: 60px;
+    width: calc(var(--rem) * 3.75);
+    height: calc(var(--rem) * 3.75);
     background: var(--bg-light);
-    border: 2px solid var(--primary-color);
+    border: calc(var(--rem) * 0.125) solid var(--primary-color);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: calc(var(--rem) * 1.75);
     box-shadow: var(--shadow-glow);
 }
 
 .player-stats {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: calc(var(--rem) * 0.25);
 }
 
 .stat-row {
     display: flex;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
     align-items: baseline;
 }
 
 .player-name {
-    font-size: 18px;
+    font-size: calc(var(--rem) * 1.125);
     font-weight: 600;
 }
 
 .player-level {
-    font-size: 14px;
+    font-size: calc(var(--rem) * 0.875);
     color: var(--primary-light);
     font-weight: 500;
 }
 
 /* 血条/蓝条/经验条 */
 .bar-container {
-    width: 200px;
-    height: 16px;
+    width: calc(var(--vw) * 55);
+    max-width: calc(var(--rem) * 12.5);
+    height: calc(var(--rem) * 1);
     background: rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
+    border-radius: calc(var(--rem) * 0.5);
     overflow: hidden;
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: calc(var(--rem) * 0.0625) solid rgba(255, 255, 255, 0.1);
 }
 
 .bar-fill {
     height: 100%;
     transition: width var(--transition-normal);
-    border-radius: 8px;
+    border-radius: calc(var(--rem) * 0.5);
 }
 
 .hp-fill {
     background: linear-gradient(90deg, var(--hp-bg), var(--hp-color));
-    box-shadow: 0 0 10px var(--hp-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) var(--hp-color);
 }
 
 .mp-fill {
     background: linear-gradient(90deg, var(--mp-bg), var(--mp-color));
-    box-shadow: 0 0 10px var(--mp-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) var(--mp-color);
 }
 
 .bar-text {
@@ -536,9 +551,9 @@ html, body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 11px;
+    font-size: calc(var(--rem) * 0.6875);
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 calc(var(--rem) * 0.0625) calc(var(--rem) * 0.125) rgba(0, 0, 0, 0.8);
 }
 
 /* 境界/职业徽章 */
@@ -546,36 +561,36 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: calc(var(--rem) * 0.25);
 }
 
 .realm-badge {
-    padding: 6px 16px;
+    padding: calc(var(--rem) * 0.375) calc(var(--rem) * 1);
     background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-    border-radius: 20px;
-    font-size: 14px;
+    border-radius: calc(var(--rem) * 1.25);
+    font-size: calc(var(--rem) * 0.875);
     font-weight: 500;
     box-shadow: var(--shadow-glow);
 }
 
 .class-badge {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-secondary);
 }
 
 /* 顶部按钮组 */
 .top-buttons {
     display: flex;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
 }
 
 .icon-btn {
-    width: 44px;
-    height: 44px;
+    width: calc(var(--rem) * 2.75);
+    height: calc(var(--rem) * 2.75);
     background: var(--bg-panel);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-md);
-    font-size: 20px;
+    font-size: calc(var(--rem) * 1.25);
     cursor: pointer;
     transition: all var(--transition-fast);
     display: flex;
@@ -586,7 +601,7 @@ html, body {
 .icon-btn:hover {
     background: var(--bg-light);
     border-color: var(--primary-color);
-    transform: translateY(-2px);
+    transform: translateY(calc(var(--rem) * -0.125));
 }
 
 /* ===============================================
@@ -594,21 +609,21 @@ html, body {
    =============================================== */
 #target-frame {
     position: absolute;
-    top: 16px;
+    top: calc(var(--rem) * 1);
     left: 50%;
     transform: translateX(-50%);
     background: var(--bg-panel);
-    border: 2px solid var(--danger-color);
+    border: calc(var(--rem) * 0.125) solid var(--danger-color);
     border-radius: var(--radius-md);
-    padding: 12px 20px;
-    min-width: 200px;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    padding: calc(var(--rem) * 0.75) calc(var(--rem) * 1.25);
+    min-width: calc(var(--rem) * 12.5);
+    box-shadow: 0 0 calc(var(--rem) * 1.25) rgba(239, 68, 68, 0.3);
 }
 
 .target-info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
 }
 
 .target-name {
@@ -621,12 +636,12 @@ html, body {
 }
 
 .target-hp-bar {
-    height: 12px;
+    height: calc(var(--rem) * 0.75);
 }
 
 .target-hp-fill {
     background: linear-gradient(90deg, #7f1d1d, var(--danger-color));
-    box-shadow: 0 0 8px var(--danger-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.5) var(--danger-color);
 }
 
 /* ===============================================
@@ -634,13 +649,13 @@ html, body {
    =============================================== */
 #dialog-box {
     position: absolute;
-    bottom: 140px;
+    bottom: calc(var(--vh) * 18);
     left: 50%;
     transform: translateX(-50%);
-    width: 600px;
-    max-width: 90%;
+    width: calc(var(--vw) * 90);
+    max-width: calc(var(--rem) * 37.5);
     background: var(--bg-panel);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     animation: slideUp 0.3s ease;
@@ -650,23 +665,23 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-color);
+    padding: calc(var(--rem) * 0.75) calc(var(--rem) * 1);
+    border-bottom: calc(var(--rem) * 0.0625) solid var(--border-color);
 }
 
 .dialog-speaker {
     font-weight: 600;
     color: var(--primary-light);
-    font-size: 16px;
+    font-size: calc(var(--rem) * 1);
 }
 
 .dialog-close {
-    width: 28px;
-    height: 28px;
+    width: calc(var(--rem) * 1.75);
+    height: calc(var(--rem) * 1.75);
     background: transparent;
     border: none;
     color: var(--text-muted);
-    font-size: 20px;
+    font-size: calc(var(--rem) * 1.25);
     cursor: pointer;
     border-radius: 50%;
     transition: all var(--transition-fast);
@@ -678,30 +693,30 @@ html, body {
 }
 
 .dialog-content {
-    padding: 20px;
-    font-size: 15px;
+    padding: calc(var(--rem) * 1.25);
+    font-size: calc(var(--rem) * 0.9375);
     line-height: 1.8;
     color: var(--text-primary);
-    min-height: 80px;
+    min-height: calc(var(--rem) * 5);
 }
 
 .dialog-options {
-    padding: 0 16px 16px;
+    padding: 0 calc(var(--rem) * 1) calc(var(--rem) * 1);
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
 }
 
 .dialog-option {
-    padding: 10px 20px;
+    padding: calc(var(--rem) * 0.625) calc(var(--rem) * 1.25);
     background: var(--bg-light);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
     cursor: pointer;
     transition: all var(--transition-fast);
     font-family: inherit;
-    font-size: 14px;
+    font-size: calc(var(--rem) * 0.875);
 }
 
 .dialog-option:hover {
@@ -720,45 +735,46 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
     pointer-events: none;
 }
 
 .game-message {
-    padding: 12px 24px;
+    padding: calc(var(--rem) * 0.75) calc(var(--rem) * 1.5);
     background: rgba(0, 0, 0, 0.8);
     border-radius: var(--radius-lg);
-    font-size: 16px;
+    font-size: calc(var(--rem) * 1);
     animation: messagePopup 2s ease forwards;
 }
 
 .game-message.success {
-    border: 1px solid var(--success-color);
+    border: calc(var(--rem) * 0.0625) solid var(--success-color);
     color: var(--success-color);
 }
 
 .game-message.warning {
-    border: 1px solid var(--warning-color);
+    border: calc(var(--rem) * 0.0625) solid var(--warning-color);
     color: var(--warning-color);
 }
 
 .game-message.error {
-    border: 1px solid var(--danger-color);
+    border: calc(var(--rem) * 0.0625) solid var(--danger-color);
     color: var(--danger-color);
 }
 
 .game-message.info {
-    border: 1px solid var(--info-color);
+    border: calc(var(--rem) * 0.0625) solid var(--info-color);
     color: var(--info-color);
 }
 
 /* 战斗日志 */
 #combat-log {
     position: absolute;
-    bottom: 140px;
-    left: 20px;
-    width: 300px;
-    max-height: 150px;
+    bottom: calc(var(--vh) * 18);
+    left: calc(var(--rem) * 1.25);
+    width: calc(var(--vw) * 40);
+    max-width: calc(var(--rem) * 18.75);
+    max-height: calc(var(--vh) * 20);
     overflow-y: auto;
     pointer-events: none;
 }
@@ -766,12 +782,12 @@ html, body {
 .log-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: calc(var(--rem) * 0.125);
 }
 
 .log-entry {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: calc(var(--rem) * 0.75);
+    padding: calc(var(--rem) * 0.25) calc(var(--rem) * 0.5);
     background: rgba(0, 0, 0, 0.6);
     border-radius: var(--radius-sm);
     color: var(--text-secondary);
@@ -794,23 +810,23 @@ html, body {
    =============================================== */
 #skill-bar {
     position: absolute;
-    bottom: 60px;
+    bottom: calc(var(--vh) * 8);
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: calc(var(--rem) * 0.5);
+    padding: calc(var(--rem) * 0.75) calc(var(--rem) * 1);
     background: var(--bg-panel);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
 }
 
 .skill-slot {
-    width: 56px;
-    height: 56px;
+    width: calc(var(--rem) * 3.5);
+    height: calc(var(--rem) * 3.5);
     background: var(--bg-dark);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
@@ -823,7 +839,7 @@ html, body {
 
 .skill-slot:hover:not(.locked):not(.on-cooldown) {
     border-color: var(--primary-color);
-    transform: translateY(-4px);
+    transform: translateY(calc(var(--rem) * -0.25));
     box-shadow: var(--shadow-glow);
 }
 
@@ -838,7 +854,7 @@ html, body {
 
 .skill-slot.active {
     border-color: var(--success-color);
-    box-shadow: 0 0 10px var(--success-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) var(--success-color);
 }
 
 .skill-slot.ultimate {
@@ -847,18 +863,18 @@ html, body {
 
 .skill-key {
     position: absolute;
-    top: 2px;
-    left: 4px;
-    font-size: 10px;
+    top: calc(var(--rem) * 0.125);
+    left: calc(var(--rem) * 0.25);
+    font-size: calc(var(--rem) * 0.625);
     color: var(--text-muted);
     font-weight: 600;
 }
 
 .skill-name {
-    font-size: 11px;
+    font-size: calc(var(--rem) * 0.6875);
     color: var(--text-secondary);
     text-align: center;
-    margin-top: 4px;
+    margin-top: calc(var(--rem) * 0.25);
 }
 
 .skill-cooldown {
@@ -872,14 +888,14 @@ html, body {
     display: none;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: calc(var(--rem) * 1.125);
     font-weight: bold;
     color: white;
 }
 
 .skill-slot.on-cooldown .skill-cooldown {
     display: flex;
-    background: rgba(0, 0, 0, 0.5); 
+    background: rgba(0, 0, 0, 0.5);
 }
 
 /* 冷却时的动态遮罩效果 */
@@ -908,22 +924,22 @@ html, body {
    =============================================== */
 #exp-bar {
     position: absolute;
-    bottom: 20px;
+    bottom: calc(var(--vh) * 2.5);
     left: 50%;
     transform: translateX(-50%);
-    width: 500px;
-    max-width: 80%;
-    height: 24px;
+    width: calc(var(--vw) * 70);
+    max-width: calc(var(--rem) * 31.25);
+    height: calc(var(--rem) * 1.5);
     background: rgba(0, 0, 0, 0.6);
-    border-radius: 12px;
+    border-radius: calc(var(--rem) * 0.75);
     overflow: hidden;
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
 }
 
 .exp-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--exp-bg), var(--exp-color));
-    box-shadow: 0 0 10px var(--exp-color);
+    box-shadow: 0 0 calc(var(--rem) * 0.625) var(--exp-color);
     transition: width var(--transition-normal);
 }
 
@@ -932,9 +948,9 @@ html, body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 calc(var(--rem) * 0.0625) calc(var(--rem) * 0.125) rgba(0, 0, 0, 0.8);
 }
 
 /* ===============================================
@@ -946,12 +962,12 @@ html, body {
     left: 50%;
     transform: translate(-50%, -50%);
     background: var(--bg-panel);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
-    min-width: 400px;
-    max-width: 90%;
-    max-height: 80%;
+    width: calc(var(--vw) * 90);
+    max-width: calc(var(--rem) * 25);
+    max-height: calc(var(--vh) * 80);
     overflow: hidden;
     animation: scaleIn 0.3s ease;
     z-index: 500;
@@ -961,23 +977,23 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: calc(var(--rem) * 1) calc(var(--rem) * 1.25);
     background: var(--bg-dark);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: calc(var(--rem) * 0.0625) solid var(--border-color);
 }
 
 .panel-header h2 {
-    font-size: 18px;
+    font-size: calc(var(--rem) * 1.125);
     color: var(--primary-light);
 }
 
 .panel-close {
-    width: 32px;
-    height: 32px;
+    width: calc(var(--rem) * 2);
+    height: calc(var(--rem) * 2);
     background: transparent;
     border: none;
     color: var(--text-muted);
-    font-size: 24px;
+    font-size: calc(var(--rem) * 1.5);
     cursor: pointer;
     border-radius: 50%;
     transition: all var(--transition-fast);
@@ -992,8 +1008,8 @@ html, body {
 }
 
 .panel-content {
-    padding: 20px;
-    max-height: 500px;
+    padding: calc(var(--rem) * 1.25);
+    max-height: calc(var(--vh) * 60);
     overflow-y: auto;
 }
 
@@ -1001,13 +1017,13 @@ html, body {
 .char-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
 }
 
 .char-stat {
     display: flex;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: calc(var(--rem) * 0.625) calc(var(--rem) * 0.875);
     background: var(--bg-dark);
     border-radius: var(--radius-md);
 }
@@ -1023,10 +1039,10 @@ html, body {
 
 /* 背包格子 */
 .inventory-gold {
-    padding: 12px;
+    padding: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
     border-radius: var(--radius-md);
-    margin-bottom: 16px;
+    margin-bottom: calc(var(--rem) * 1);
     text-align: center;
 }
 
@@ -1038,13 +1054,13 @@ html, body {
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
 }
 
 .inventory-slot {
     aspect-ratio: 1;
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
@@ -1060,44 +1076,44 @@ html, body {
 }
 
 .inventory-slot .item-icon {
-    font-size: 24px;
+    font-size: calc(var(--rem) * 1.5);
 }
 
 .inventory-slot .item-count {
     position: absolute;
-    bottom: 2px;
-    right: 4px;
-    font-size: 10px;
+    bottom: calc(var(--rem) * 0.125);
+    right: calc(var(--rem) * 0.25);
+    font-size: calc(var(--rem) * 0.625);
     color: var(--text-secondary);
 }
 
 /* 商店物品 */
 .shop-gold {
-    padding: 12px;
+    padding: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
     border-radius: var(--radius-md);
-    margin-bottom: 16px;
+    margin-bottom: calc(var(--rem) * 1);
     text-align: center;
 }
 
 .shop-items {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
 }
 
 .shop-item {
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
 }
 
 .shop-item-icon {
-    font-size: 28px;
-    margin-right: 12px;
+    font-size: calc(var(--rem) * 1.75);
+    margin-right: calc(var(--rem) * 0.75);
 }
 
 .shop-item-info {
@@ -1106,11 +1122,11 @@ html, body {
 
 .shop-item-name {
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: calc(var(--rem) * 0.25);
 }
 
 .shop-item-desc {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-muted);
 }
 
@@ -1120,8 +1136,8 @@ html, body {
 }
 
 .shop-item-buy {
-    padding: 8px 16px;
-    margin-left: 12px;
+    padding: calc(var(--rem) * 0.5) calc(var(--rem) * 1);
+    margin-left: calc(var(--rem) * 0.75);
     background: var(--primary-color);
     border: none;
     border-radius: var(--radius-md);
@@ -1143,15 +1159,15 @@ html, body {
 .skills-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
 }
 
 .skill-item {
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
 }
 
@@ -1160,15 +1176,15 @@ html, body {
 }
 
 .skill-item-icon {
-    width: 48px;
-    height: 48px;
+    width: calc(var(--rem) * 3);
+    height: calc(var(--rem) * 3);
     background: var(--bg-light);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin-right: 12px;
+    font-size: calc(var(--rem) * 1.5);
+    margin-right: calc(var(--rem) * 0.75);
 }
 
 .skill-item-info {
@@ -1177,42 +1193,42 @@ html, body {
 
 .skill-item-name {
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: calc(var(--rem) * 0.25);
 }
 
 .skill-item-desc {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-muted);
 }
 
 .skill-item-cost {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--mp-color);
 }
 
 /* 任务面板 */
 .quest-item {
-    padding: 12px;
+    padding: calc(var(--rem) * 0.75);
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-md);
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
 }
 
 .quest-title {
     font-weight: 600;
     color: var(--warning-color);
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
 }
 
 .quest-desc {
-    font-size: 13px;
+    font-size: calc(var(--rem) * 0.8125);
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
 }
 
 .quest-progress {
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-muted);
 }
 
@@ -1223,22 +1239,24 @@ html, body {
 .no-quests {
     text-align: center;
     color: var(--text-muted);
-    padding: 40px;
+    padding: calc(var(--rem) * 2.5);
 }
 
 /* 转职面板 */
 .class-options {
     display: flex;
-    gap: 16px;
+    gap: calc(var(--rem) * 1);
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .class-option {
     flex: 1;
-    max-width: 200px;
-    padding: 20px;
+    min-width: calc(var(--rem) * 12.5);
+    max-width: calc(var(--rem) * 12.5);
+    padding: calc(var(--rem) * 1.25);
     background: var(--bg-dark);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     border-radius: var(--radius-lg);
     text-align: center;
     transition: all var(--transition-normal);
@@ -1246,37 +1264,37 @@ html, body {
 
 .class-option:hover {
     border-color: var(--primary-color);
-    transform: translateY(-4px);
+    transform: translateY(calc(var(--rem) * -0.25));
 }
 
 .class-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
+    font-size: calc(var(--rem) * 3);
+    margin-bottom: calc(var(--rem) * 0.75);
 }
 
 .class-option h3 {
-    font-size: 18px;
+    font-size: calc(var(--rem) * 1.125);
     color: var(--primary-light);
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--rem) * 0.5);
 }
 
 .class-option p {
-    font-size: 13px;
+    font-size: calc(var(--rem) * 0.8125);
     color: var(--text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: calc(var(--rem) * 0.75);
 }
 
 .class-option ul {
     list-style: none;
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     color: var(--text-muted);
-    margin-bottom: 16px;
+    margin-bottom: calc(var(--rem) * 1);
     text-align: left;
 }
 
 .class-option li {
-    padding: 4px 0;
-    padding-left: 16px;
+    padding: calc(var(--rem) * 0.25) 0;
+    padding-left: calc(var(--rem) * 1);
     position: relative;
 }
 
@@ -1289,7 +1307,7 @@ html, body {
 
 .class-select-btn {
     width: 100%;
-    padding: 10px;
+    padding: calc(var(--rem) * 0.625);
     background: var(--primary-color);
     border: none;
     border-radius: var(--radius-md);
@@ -1311,8 +1329,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 800;
     display: flex;
     align-items: center;
@@ -1322,22 +1340,22 @@ html, body {
 
 .game-menu-content {
     background: var(--bg-panel);
-    padding: 40px;
+    padding: calc(var(--rem) * 2.5);
     border-radius: var(--radius-xl);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     text-align: center;
     animation: scaleIn 0.3s ease;
 }
 
 .game-menu-content h2 {
-    margin-bottom: 24px;
+    margin-bottom: calc(var(--rem) * 1.5);
     color: var(--primary-light);
 }
 
 .game-menu-buttons {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
 }
 
 /* ===============================================
@@ -1347,8 +1365,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 950;
     display: flex;
     align-items: center;
@@ -1358,47 +1376,48 @@ html, body {
 
 .hint-content {
     background: var(--bg-panel);
-    padding: 40px;
+    padding: calc(var(--rem) * 2.5);
     border-radius: var(--radius-xl);
-    border: 2px solid var(--border-color);
-    max-width: 500px;
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
+    width: calc(var(--vw) * 90);
+    max-width: calc(var(--rem) * 31.25);
     animation: scaleIn 0.3s ease;
 }
 
 .hint-content h3 {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: calc(var(--rem) * 1.5);
     color: var(--primary-light);
-    font-size: 20px;
+    font-size: calc(var(--rem) * 1.25);
 }
 
 .hint-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: calc(var(--rem) * 0.75);
+    margin-bottom: calc(var(--rem) * 1.5);
 }
 
 .hint-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
 }
 
 .hint-item .key {
-    padding: 6px 12px;
+    padding: calc(var(--rem) * 0.375) calc(var(--rem) * 0.75);
     background: var(--bg-dark);
-    border: 1px solid var(--border-color);
+    border: calc(var(--rem) * 0.0625) solid var(--border-color);
     border-radius: var(--radius-sm);
-    font-size: 12px;
+    font-size: calc(var(--rem) * 0.75);
     font-weight: 600;
-    min-width: 80px;
+    min-width: calc(var(--rem) * 5);
     text-align: center;
 }
 
 .hint-item .desc {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--rem) * 0.8125);
 }
 
 #hide-hint {
@@ -1412,8 +1431,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: 1100;
     display: flex;
     align-items: center;
@@ -1423,21 +1442,21 @@ html, body {
 
 .confirm-content {
     background: var(--bg-panel);
-    padding: 30px 40px;
+    padding: calc(var(--rem) * 1.875) calc(var(--rem) * 2.5);
     border-radius: var(--radius-lg);
-    border: 2px solid var(--border-color);
+    border: calc(var(--rem) * 0.125) solid var(--border-color);
     text-align: center;
     animation: scaleIn 0.2s ease;
 }
 
 .confirm-content p {
-    margin-bottom: 24px;
-    font-size: 16px;
+    margin-bottom: calc(var(--rem) * 1.5);
+    font-size: calc(var(--rem) * 1);
 }
 
 .confirm-buttons {
     display: flex;
-    gap: 12px;
+    gap: calc(var(--rem) * 0.75);
     justify-content: center;
 }
 
@@ -1446,23 +1465,23 @@ html, body {
    =============================================== */
 #toast-container {
     position: absolute;
-    top: 100px;
-    right: 20px;
+    top: calc(var(--rem) * 6);
+    right: calc(var(--rem) * 1.25);
     z-index: 1200;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: calc(var(--rem) * 0.5);
     pointer-events: none;
 }
 
 .toast {
-    padding: 12px 20px;
+    padding: calc(var(--rem) * 0.75) calc(var(--rem) * 1.25);
     background: var(--bg-panel);
     border-radius: var(--radius-md);
-    border-left: 4px solid var(--info-color);
+    border-left: calc(var(--rem) * 0.25) solid var(--info-color);
     box-shadow: var(--shadow-md);
     animation: slideInRight 0.3s ease;
-    max-width: 300px;
+    max-width: calc(var(--rem) * 18.75);
 }
 
 .toast.success {
@@ -1482,9 +1501,9 @@ html, body {
    =============================================== */
 .damage-number {
     position: absolute;
-    font-size: 24px;
+    font-size: calc(var(--rem) * 1.5);
     font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 calc(var(--rem) * 0.125) calc(var(--rem) * 0.25) rgba(0, 0, 0, 0.8);
     pointer-events: none;
     animation: damageFloat 1s ease-out forwards;
     z-index: 1000;
@@ -1503,7 +1522,7 @@ html, body {
 }
 
 .damage-number.critical {
-    font-size: 32px;
+    font-size: calc(var(--rem) * 2);
     color: #ff6b6b;
 }
 
@@ -1518,7 +1537,7 @@ html, body {
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(calc(var(--rem) * 1.875));
     }
     to {
         opacity: 1;
@@ -1540,7 +1559,7 @@ html, body {
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(100px);
+        transform: translateX(calc(var(--rem) * 6.25));
     }
     to {
         opacity: 1;
@@ -1551,7 +1570,7 @@ html, body {
 @keyframes messagePopup {
     0% {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(calc(var(--rem) * 1.25));
     }
     20% {
         opacity: 1;
@@ -1562,7 +1581,7 @@ html, body {
     }
     100% {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(calc(var(--rem) * -1.25));
     }
 }
 
@@ -1573,11 +1592,11 @@ html, body {
     }
     50% {
         opacity: 1;
-        transform: translateY(-30px) scale(1.2);
+        transform: translateY(calc(var(--rem) * -1.875)) scale(1.2);
     }
     100% {
         opacity: 0;
-        transform: translateY(-60px) scale(0.8);
+        transform: translateY(calc(var(--rem) * -3.75)) scale(0.8);
     }
 }
 
@@ -1594,17 +1613,17 @@ html, body {
    滚动条样式
    =============================================== */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: calc(var(--rem) * 0.5);
 }
 
 ::-webkit-scrollbar-track {
     background: var(--bg-dark);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--bg-light);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -1612,42 +1631,114 @@ html, body {
 }
 
 /* ===============================================
-   响应式
+   响应式断点
    =============================================== */
-@media (max-width: 768px) {
+
+/* 小屏手机 */
+@media (max-width: 360px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+/* 标准手机 */
+@media (min-width: 361px) and (max-width: 414px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* 大屏手机 */
+@media (min-width: 415px) and (max-width: 767px) {
+    html {
+        font-size: 17px;
+    }
+}
+
+/* 平板 */
+@media (min-width: 768px) and (max-width: 1023px) {
+    html {
+        font-size: 18px;
+    }
+
     .game-title {
-        font-size: 48px;
+        font-size: calc(var(--rem) * 5);
     }
-    
+
     .menu-btn {
-        width: 240px;
-        padding: 14px 24px;
+        max-width: calc(var(--rem) * 20);
     }
-    
+}
+
+/* 桌面 */
+@media (min-width: 1024px) {
+    html {
+        font-size: 16px;
+    }
+
+    .game-title {
+        font-size: calc(var(--rem) * 6);
+    }
+
+    .menu-btn {
+        max-width: calc(var(--rem) * 22);
+        padding: calc(var(--rem) * 1.125) calc(var(--rem) * 2.5);
+    }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+    #top-bar {
+        padding: calc(var(--rem) * 0.5);
+    }
+
+    .avatar {
+        width: calc(var(--rem) * 3);
+        height: calc(var(--rem) * 3);
+    }
+
     #skill-bar {
-        gap: 4px;
-        padding: 8px 12px;
+        bottom: calc(var(--vh) * 5);
+        padding: calc(var(--rem) * 0.5);
     }
-    
+
     .skill-slot {
-        width: 44px;
-        height: 44px;
+        width: calc(var(--rem) * 3);
+        height: calc(var(--rem) * 3);
     }
-    
-    .panel {
-        min-width: 90%;
+
+    #exp-bar {
+        bottom: calc(var(--vh) * 1);
+        height: calc(var(--rem) * 1.25);
     }
-    
-    .class-options {
-        flex-direction: column;
-        align-items: center;
+}
+
+/* 折叠屏适配 */
+@media (screen-fold-posture: folded) {
+    .game-title {
+        font-size: calc(var(--rem) * 3);
     }
-    
-    .class-option {
-        max-width: 100%;
+
+    .menu-buttons {
+        gap: calc(var(--rem) * 0.75);
     }
-    
-    .hint-grid {
-        grid-template-columns: 1fr;
+}
+
+/* 刘海屏安全区域 */
+@supports (padding-top: env(safe-area-inset-top)) {
+    #top-bar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    #game-ui {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    #skill-bar {
+        bottom: calc(var(--vh) * 8 + env(safe-area-inset-bottom));
+    }
+
+    #exp-bar {
+        bottom: calc(var(--vh) * 2.5 + env(safe-area-inset-bottom));
     }
 }
