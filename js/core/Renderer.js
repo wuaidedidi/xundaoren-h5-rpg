@@ -73,19 +73,21 @@ class Renderer {
         this.scene.add(ambientLight);
 
         // 主方向光（太阳光）
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(50, 100, 50);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        directionalLight.position.set(-30, 50, -20);
         directionalLight.castShadow = this.quality !== 'low';
+        directionalLight.shadow.bias = -0.0005;
+        directionalLight.shadow.normalBias = 0.02;
         
         if (directionalLight.castShadow) {
-            directionalLight.shadow.mapSize.width = this.quality === 'high' ? 2048 : 1024;
-            directionalLight.shadow.mapSize.height = this.quality === 'high' ? 2048 : 1024;
+            directionalLight.shadow.mapSize.width = this.quality === 'high' ? 4096 : 2048;
+            directionalLight.shadow.mapSize.height = this.quality === 'high' ? 4096 : 2048;
             directionalLight.shadow.camera.near = 10;
             directionalLight.shadow.camera.far = 200;
-            directionalLight.shadow.camera.left = -50;
-            directionalLight.shadow.camera.right = 50;
-            directionalLight.shadow.camera.top = 50;
-            directionalLight.shadow.camera.bottom = -50;
+            directionalLight.shadow.camera.left = -60;
+            directionalLight.shadow.camera.right = 60;
+            directionalLight.shadow.camera.top = 60;
+            directionalLight.shadow.camera.bottom = -60;
         }
         
         this.scene.add(directionalLight);
