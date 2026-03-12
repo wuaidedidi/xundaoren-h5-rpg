@@ -18,7 +18,8 @@ export const MONSTERS = {
         aggroRange: 8,
         attackRange: 2,
         drops: [
-            { itemId: 'rabbitFur', chance: 0.5, countMin: 1, countMax: 2 }
+            { itemId: 'rabbitFur', chance: 0.5, countMin: 1, countMax: 2 },
+            { itemId: 'woodenRing', chance: 0.05, countMin: 1, countMax: 1 }
         ],
         description: '初级妖兽，胆小但数量众多'
     },
@@ -37,7 +38,8 @@ export const MONSTERS = {
         aggroRange: 6,
         attackRange: 2,
         drops: [
-            { itemId: 'woodCore', chance: 0.4, countMin: 1, countMax: 1 }
+            { itemId: 'woodCore', chance: 0.4, countMin: 1, countMax: 1 },
+            { itemId: 'basicRobe', chance: 0.08, countMin: 1, countMax: 1 }
         ],
         description: '由灵气滋养的草木化形'
     },
@@ -56,7 +58,9 @@ export const MONSTERS = {
         aggroRange: 5,
         attackRange: 2.5,
         drops: [
-            { itemId: 'stoneChunk', chance: 0.6, countMin: 1, countMax: 3 }
+            { itemId: 'stoneChunk', chance: 0.6, countMin: 1, countMax: 3 },
+            { itemId: 'basicSword', chance: 0.1, countMin: 1, countMax: 1 },
+            { itemId: 'leatherArmor', chance: 0.05, countMin: 1, countMax: 1 }
         ],
         description: '坚硬的石头傀儡，行动迟缓但防御极高'
     }
@@ -81,4 +85,29 @@ export function getAllMonsters() {
  */
 export function getMonstersByLevel(minLevel, maxLevel) {
     return Object.values(MONSTERS).filter(m => m.level >= minLevel && m.level <= maxLevel);
+}
+
+/**
+ * 计算怪物掉落
+ * @param {Object} monster - 怪物配置
+ * @returns {Array} - 掉落物品列表 [{itemId, count}]
+ */
+export function calculateDrops(monster) {
+    if (!monster || !monster.drops) return [];
+    
+    const drops = [];
+    
+    for (const drop of monster.drops) {
+        // 随机判断是否掉落
+        if (Math.random() < drop.chance) {
+            // 随机数量
+            const count = Math.floor(Math.random() * (drop.countMax - drop.countMin + 1)) + drop.countMin;
+            drops.push({
+                itemId: drop.itemId,
+                count: count
+            });
+        }
+    }
+    
+    return drops;
 }

@@ -43,12 +43,15 @@ export const NPCS = {
         color: 0xffa500,
         size: 1.1,
         position: { x: -10, y: 0, z: 5 },
-        type: 'craft',
+        type: 'shop',
         dialogs: {
             default: {
-                text: '哈哈！来找我打造装备吗？可惜现在材料不够，等你收集够了再来吧！',
+                text: '哈哈！欢迎来到我的铁匠铺！想要打造装备还是修理武器？',
                 options: [
-                    { text: '好的', action: 'close' }
+                    { text: '购买装备', action: 'openShopBuy' },
+                    { text: '出售物品', action: 'openShopSell' },
+                    { text: '修理装备', action: 'openShopRepair' },
+                    { text: '暂时不需要', action: 'close' }
                 ]
             }
         }

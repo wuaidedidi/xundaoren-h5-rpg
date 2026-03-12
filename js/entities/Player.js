@@ -6,6 +6,7 @@
 import { getRealmByLevel, getExpRequired, getRealmBonus } from '../data/realms.js';
 import { getClass, getSpecialization } from '../data/classes.js';
 import { getBaseSkills, getClassSkills } from '../data/skills.js';
+import { getItem, calculateEquipmentStats, getEquipmentSlot } from '../data/items.js';
 
 export default class Player {
     constructor(name = '玩家') {
@@ -106,9 +107,7 @@ export default class Player {
         base *= getRealmBonus(this.level);
         
         // 装备加成
-        if (this.equipment.armor && this.equipment.armor.stats.hp) {
-            base += this.equipment.armor.stats.hp;
-        }
+        base += this.getEquipmentStatBonus('hpBonus');
         
         return Math.floor(base);
     }
@@ -133,6 +132,9 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
+        // 装备加成
+        base += this.getEquipmentStatBonus('mpBonus');
+        
         return Math.floor(base);
     }
 
@@ -156,9 +158,8 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.weapon && this.equipment.weapon.stats.attack) {
-            base += this.equipment.weapon.stats.attack;
-        }
+        // 装备加成
+        base += this.getEquipmentStatBonus('attack');
         
         // 蓄力buff
         const chargeBuff = this.buffs.find(b => b.id === 'charge');
@@ -189,9 +190,8 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.armor && this.equipment.armor.stats.defense) {
-            base += this.equipment.armor.stats.defense;
-        }
+        // 装备加成
+        base += this.getEquipmentStatBonus('defense');
         
         return Math.floor(base);
     }
@@ -208,6 +208,167 @@ export default class Player {
         }
         
         return base;
+    }
+
+    /**
+     * 计算暴击率
+     */
+    get critRate() {
+        return this.getEquipmentStatBonus('critRate');
+    }
+
+    /**
+     * 计算伤害减免率
+     */
+    get defenseRate() {
+        return this.getEquipmentStatBonus('defenseRate');
+    }
+
+    /**
+     * 获取装备属性加成总和
+     */
+    getEquipmentStatBonus(statName) {
+        let bonus = 0;
+        
+        for (const slot of ['weapon', 'armor', 'accessory']) {
+            const equipped = this.equipment[slot];
+            if (equipped && equipped.itemId) {
+                const item = getItem(equipped.itemId);
+                if (item) {
+                    const stats = calculateEquipmentStats(item);
+                    if (stats[statName]) {
+                        bonus += stats[statName];
+                    }
+                }
+            }
+        }
+        
+        return bonus;
+    }
+
+    /**
+     * 获取已装备的物品
+     */
+    getEquippedItem(slot) {
+        const equipped = this.equipment[slot];
+        if (!equipped || !equipped.itemId) return null;
+        return getItem(equipped.itemId);
+    }
+
+    /**
+     * 穿戴装备
+     * @param {string} itemId - 物品ID
+     * @param {number} inventoryIndex - 背包索引
+     * @returns {object} - 操作结果 { success, message, replacedItem }
+     */
+    equipItem(itemId, inventoryIndex) {
+        const item = getItem(itemId);
+        if (!item) {
+            return { success: false, message: '物品不存在' };
+        }
+        
+        // 检查是否是装备
+        if (!item.slot) {
+            return { success: false, message: '该物品无法装备' };
+        }
+        
+        const slot = item.slot;
+        const slotInfo = getEquipmentSlot(slot);
+        
+        // 检查是否有已装备的物品
+        const previousEquipped = this.equipment[slot];
+        let replacedItem = null;
+        
+        // 从背包中移除
+        this.removeItemFromInventory(inventoryIndex);
+        
+        // 如果有已装备的物品，先卸下
+        if (previousEquipped && previousEquipped.itemId) {
+            const prevItem = getItem(previousEquipped.itemId);
+            if (prevItem) {
+                // 尝试将旧装备放回背包
+                const added = this.addItem(prevItem, 1);
+                if (!added) {
+                    // 背包满了，无法卸下
+                    return { 
+                        success: false, 
+                        message: '背包已满，无法卸下当前装备' 
+                    };
+                }
+                replacedItem = prevItem;
+            }
+        }
+        
+        // 装备新物品
+        this.equipment[slot] = {
+            itemId: itemId,
+            equippedAt: Date.now()
+        };
+        
+        // 调整当前血量（防止超过最大值）
+        this.hp = Math.min(this.hp, this.maxHp);
+        this.mp = Math.min(this.mp, this.maxMp);
+        
+        const message = replacedItem 
+            ? `已装备 ${item.name}，卸下 ${replacedItem.name}`
+            : `已装备 ${item.name}`;
+        
+        return { 
+            success: true, 
+            message,
+            replacedItem,
+            equippedItem: item
+        };
+    }
+
+    /**
+     * 卸下装备
+     * @param {string} slot - 装备槽位
+     * @returns {object} - 操作结果 { success, message, item }
+     */
+    unequipItem(slot) {
+        const equipped = this.equipment[slot];
+        if (!equipped || !equipped.itemId) {
+            return { success: false, message: '该位置没有装备' };
+        }
+        
+        const item = getItem(equipped.itemId);
+        if (!item) {
+            return { success: false, message: '装备数据异常' };
+        }
+        
+        // 尝试放入背包
+        const added = this.addItem(item, 1);
+        if (!added) {
+            return { success: false, message: '背包已满，无法卸下' };
+        }
+        
+        // 清空装备槽
+        this.equipment[slot] = null;
+        
+        // 调整当前血量
+        this.hp = Math.min(this.hp, this.maxHp);
+        this.mp = Math.min(this.mp, this.maxMp);
+        
+        return { 
+            success: true, 
+            message: `已卸下 ${item.name}`,
+            item
+        };
+    }
+
+    /**
+     * 从背包中移除物品（用于装备时）
+     */
+    removeItemFromInventory(index) {
+        if (index >= 0 && index < this.inventory.length) {
+            this.inventory[index].count--;
+            if (this.inventory[index].count <= 0) {
+                this.inventory.splice(index, 1);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -316,6 +477,12 @@ export default class Player {
         const regenRate = 0.01 * deltaTime;
         this.hp = Math.min(this.maxHp, this.hp + this.maxHp * regenRate);
         this.mp = Math.min(this.maxMp, this.mp + this.maxMp * regenRate);
+        
+        // 装备生命回复
+        const hpRegen = this.getEquipmentStatBonus('hpRegen');
+        if (hpRegen > 0) {
+            this.hp = Math.min(this.maxHp, this.hp + hpRegen * deltaTime);
+        }
     }
 
     /**
@@ -334,6 +501,10 @@ export default class Player {
             this.buffs = this.buffs.filter(b => b.id !== 'spiritShield');
             return 0; // 完全吸收
         }
+        
+        // 应用伤害减免
+        const damageReduction = this.defenseRate;
+        amount *= (1 - damageReduction);
         
         const finalDamage = Math.max(1, Math.floor(amount - this.defense * 0.5));
         this.hp = Math.max(0, this.hp - finalDamage);
@@ -405,6 +576,15 @@ export default class Player {
      */
     gainGold(amount) {
         this.gold += amount;
+    }
+
+    /**
+     * 花费金币
+     */
+    spendGold(amount) {
+        if (this.gold < amount) return false;
+        this.gold -= amount;
+        return true;
     }
 
     /**
@@ -524,7 +704,11 @@ export default class Player {
             mp: this.mp,
             position: { ...this.position },
             inventory: [...this.inventory],
-            equipment: { ...this.equipment },
+            equipment: { 
+                weapon: this.equipment.weapon ? { ...this.equipment.weapon } : null,
+                armor: this.equipment.armor ? { ...this.equipment.armor } : null,
+                accessory: this.equipment.accessory ? { ...this.equipment.accessory } : null
+            },
             learnedSkills: [...this.learnedSkills],
             quests: [...this.quests],
             completedQuests: [...this.completedQuests],
@@ -537,6 +721,20 @@ export default class Player {
      * 从存档数据恢复
      */
     loadFromSaveData(data) {
+        // 处理老存档兼容性：确保equipment字段存在
+        if (!data.equipment) {
+            data.equipment = {
+                weapon: null,
+                armor: null,
+                accessory: null
+            };
+        } else {
+            // 确保所有槽位都存在
+            if (!data.equipment.weapon) data.equipment.weapon = null;
+            if (!data.equipment.armor) data.equipment.armor = null;
+            if (!data.equipment.accessory) data.equipment.accessory = null;
+        }
+        
         Object.assign(this, data);
         this.hp = Math.min(this.hp, this.maxHp);
         this.mp = Math.min(this.mp, this.maxMp);
