@@ -18,7 +18,10 @@ export const MONSTERS = {
         aggroRange: 8,
         attackRange: 2,
         drops: [
-            { itemId: 'rabbitFur', chance: 0.5, countMin: 1, countMax: 2 }
+            { itemId: 'rabbitFur', chance: 0.5, countMin: 1, countMax: 2 },
+            { itemId: 'basicSword', chance: 0.1, countMin: 1, countMax: 1 },
+            { itemId: 'basicRobe', chance: 0.1, countMin: 1, countMax: 1 },
+            { itemId: 'basicRing', chance: 0.08, countMin: 1, countMax: 1 }
         ],
         description: '初级妖兽，胆小但数量众多'
     },
@@ -37,7 +40,10 @@ export const MONSTERS = {
         aggroRange: 6,
         attackRange: 2,
         drops: [
-            { itemId: 'woodCore', chance: 0.4, countMin: 1, countMax: 1 }
+            { itemId: 'woodCore', chance: 0.4, countMin: 1, countMax: 1 },
+            { itemId: 'fineSword', chance: 0.08, countMin: 1, countMax: 1 },
+            { itemId: 'fineRobe', chance: 0.08, countMin: 1, countMax: 1 },
+            { itemId: 'fineAmulet', chance: 0.06, countMin: 1, countMax: 1 }
         ],
         description: '由灵气滋养的草木化形'
     },
@@ -56,7 +62,10 @@ export const MONSTERS = {
         aggroRange: 5,
         attackRange: 2.5,
         drops: [
-            { itemId: 'stoneChunk', chance: 0.6, countMin: 1, countMax: 3 }
+            { itemId: 'stoneChunk', chance: 0.6, countMin: 1, countMax: 3 },
+            { itemId: 'rareSword', chance: 0.05, countMin: 1, countMax: 1 },
+            { itemId: 'rareRobe', chance: 0.05, countMin: 1, countMax: 1 },
+            { itemId: 'rareNecklace', chance: 0.03, countMin: 1, countMax: 1 }
         ],
         description: '坚硬的石头傀儡，行动迟缓但防御极高'
     }

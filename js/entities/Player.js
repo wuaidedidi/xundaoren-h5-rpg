@@ -6,6 +6,7 @@
 import { getRealmByLevel, getExpRequired, getRealmBonus } from '../data/realms.js';
 import { getClass, getSpecialization } from '../data/classes.js';
 import { getBaseSkills, getClassSkills } from '../data/skills.js';
+import { getItem } from '../data/items.js';
 
 export default class Player {
     constructor(name = '玩家') {
@@ -106,9 +107,7 @@ export default class Player {
         base *= getRealmBonus(this.level);
         
         // 装备加成
-        if (this.equipment.armor && this.equipment.armor.stats.hp) {
-            base += this.equipment.armor.stats.hp;
-        }
+        base += this.getEquipmentStat('hp');
         
         return Math.floor(base);
     }
@@ -133,6 +132,9 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
+        // 装备加成
+        base += this.getEquipmentStat('mp');
+        
         return Math.floor(base);
     }
 
@@ -156,9 +158,8 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.weapon && this.equipment.weapon.stats.attack) {
-            base += this.equipment.weapon.stats.attack;
-        }
+        // 装备加成
+        base += this.getEquipmentStat('attack');
         
         // 蓄力buff
         const chargeBuff = this.buffs.find(b => b.id === 'charge');
@@ -189,11 +190,84 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.armor && this.equipment.armor.stats.defense) {
-            base += this.equipment.armor.stats.defense;
-        }
+        // 装备加成
+        base += this.getEquipmentStat('defense');
         
         return Math.floor(base);
+    }
+
+    /**
+     * 统一获取装备属性加成
+     */
+    getEquipmentStat(statName) {
+        let total = 0;
+        for (const slot in this.equipment) {
+            const itemId = this.equipment[slot];
+            if (itemId) {
+                const item = getItem(itemId);
+                if (item && item.stats && item.stats[statName]) {
+                    total += item.stats[statName];
+                }
+            }
+        }
+        return total;
+    }
+
+    /**
+     * 获取已装备物品
+     */
+    getEquippedItem(slot) {
+        const itemId = this.equipment[slot];
+        return itemId ? getItem(itemId) : null;
+    }
+
+    /**
+     * 穿戴装备
+     */
+    equipItem(itemId) {
+        const item = getItem(itemId);
+        if (!item || item.type !== 'equipment') {
+            return { success: false, message: '不是可装备物品' };
+        }
+        
+        const slot = item.slot;
+        if (!slot || !this.equipment.hasOwnProperty(slot)) {
+            return { success: false, message: '无效的装备槽位' };
+        }
+        
+        const oldItemId = this.equipment[slot];
+        this.equipment[slot] = itemId;
+        
+        this.removeItem(itemId);
+        
+        if (oldItemId) {
+            this.addItem(getItem(oldItemId));
+        }
+        
+        this.hp = Math.min(this.hp, this.maxHp);
+        this.mp = Math.min(this.mp, this.maxMp);
+        
+        return { success: true, message: `已装备${item.name}`, oldItemId };
+    }
+
+    /**
+     * 卸下装备
+     */
+    unequipItem(slot) {
+        if (!this.equipment.hasOwnProperty(slot)) {
+            return { success: false, message: '无效的装备槽位' };
+        }
+        
+        const itemId = this.equipment[slot];
+        if (!itemId) {
+            return { success: false, message: '该槽位没有装备' };
+        }
+        
+        const item = getItem(itemId);
+        this.equipment[slot] = null;
+        this.addItem(item);
+        
+        return { success: true, message: `已卸下${item.name}` };
     }
 
     /**
@@ -538,6 +612,22 @@ export default class Player {
      */
     loadFromSaveData(data) {
         Object.assign(this, data);
+        
+        if (!this.equipment) {
+            this.equipment = {
+                weapon: null,
+                armor: null,
+                accessory: null
+            };
+        } else {
+            const defaultEquipment = {
+                weapon: null,
+                armor: null,
+                accessory: null
+            };
+            this.equipment = { ...defaultEquipment, ...this.equipment };
+        }
+        
         this.hp = Math.min(this.hp, this.maxHp);
         this.mp = Math.min(this.mp, this.maxMp);
     }
