@@ -11,75 +11,67 @@ import StarterVillage from './world/StarterVillage.js';
 import CombatSystem from './systems/Combat.js';
 import EffectsManager from './systems/EffectsManager.js';
 import UIManager from './ui/UIManager.js';
-import { getItem, useItem } from './data/items.js';
+import { 
+    getItem, 
+    useItem, 
+    isEquipment, 
+    getBlacksmithShopItems, 
+    getSellPrice,
+    getRepairCost,
+    generateDrop
+} from './data/items.js';
 
 class Game {
     constructor() {
         this.isRunning = false;
         this.isPaused = false;
         
-        // 核心组件
         this.renderer = Renderer;
         this.input = InputManager;
         this.storage = Storage;
         
-        // 游戏对象
         this.player = null;
         this.world = null;
         this.combat = null;
         this.effects = null;
         this.ui = null;
         
-        // 当前存档
         this.currentSaveId = null;
         
-        // 时间追踪
         this.lastTime = 0;
         this.deltaTime = 0;
         
-        // 设置
         this.settings = {
             quality: 'medium',
             showDamageNumbers: true
         };
         
-        // 当前交互NPC
         this.currentNPC = null;
     }
 
-    /**
-     * 初始化游戏
-     */
     async init() {
         console.log('寻道人 - 正在初始化...');
         
         try {
-            // 初始化UI
             this.ui = new UIManager(this);
             this.ui.setLoadingProgress(10, '正在初始化存储...');
             
-            // 初始化存储
             await this.storage.init();
             this.ui.setLoadingProgress(30, '正在加载设置...');
             
-            // 加载设置
             this.settings = await this.storage.getSettings();
             this.ui.setLoadingProgress(50, '正在初始化渲染器...');
             
-            // 初始化渲染器
             const canvas = document.getElementById('game-canvas');
             this.renderer.init(canvas, this.settings.quality);
             this.ui.setLoadingProgress(70, '正在初始化输入系统...');
             
-            // 初始化输入
             this.input.init(canvas);
             this.input.setEnabled(false);
             this.ui.setLoadingProgress(90, '正在完成初始化...');
             
-            // 绑定UI事件
             this.bindUIEvents();
             
-            // 完成加载
             this.ui.setLoadingProgress(100, '加载完成！');
             
             setTimeout(() => {
@@ -94,9 +86,6 @@ class Game {
         }
     }
 
-    /**
-     * 绑定UI事件
-     */
     bindUIEvents() {
         this.ui.bindMenuEvents({
             onContinue: () => this.showSaveList(),
@@ -112,7 +101,6 @@ class Game {
             onMenu: () => this.toggleGameMenu()
         });
         
-        // [DEBUG] F8 快速生成81级测试存档
         window.addEventListener('keydown', async (e) => {
             if (e.key === 'F8') {
                 console.log('正在生成测试存档...');
@@ -135,6 +123,9 @@ class Game {
                     position: { x: 0, y: 0, z: 5 },
                     rotation: 0,
                     inventory: [
+                        { itemId: "ironSwordRare", count: 1 },
+                        { itemId: "clothRobeRare", count: 1 },
+                        { itemId: "spiritJade", count: 1 },
                         { itemId: "hpPotion", count: 99 },
                         { itemId: "mpPotion", count: 99 },
                         { itemId: "woodCore", count: 99 },
@@ -165,45 +156,32 @@ class Game {
         });
     }
 
-    /**
-     * 创建新游戏
-     */
     async createNewGame(playerName) {
         console.log('创建新游戏:', playerName);
         
-        // 创建玩家
         this.player = new Player(playerName);
         
-        // 创建世界
         this.world = new StarterVillage();
         this.world.create(this.renderer.scene);
         
-        // 创建玩家模型
         const playerMesh = this.player.createMesh();
         this.renderer.add(playerMesh);
         
-        // 初始化战斗系统
         this.combat = new CombatSystem(this);
         this.combat.init(this.player);
         
-        // 初始化效果管理器
         this.effects = new EffectsManager(this.renderer.scene);
         this.combat.setEffectsManager(this.effects);
         
-        // 保存初始存档
         const saveData = {
             name: playerName,
             player: this.player.toSaveData()
         };
         this.currentSaveId = await this.storage.saveGame(saveData);
         
-        // 启动游戏
         this.startGame();
     }
 
-    /**
-     * 加载存档
-     */
     async loadGame(saveId) {
         console.log('加载存档:', saveId);
         
@@ -213,35 +191,26 @@ class Game {
             return;
         }
         
-        // 创建玩家
         this.player = new Player();
         this.player.loadFromSaveData(saveData.player);
         
-        // 创建世界
         this.world = new StarterVillage();
         this.world.create(this.renderer.scene);
         
-        // 创建玩家模型
         const playerMesh = this.player.createMesh();
         this.renderer.add(playerMesh);
         
-        // 初始化战斗系统
         this.combat = new CombatSystem(this);
         this.combat.init(this.player);
         
-        // 初始化效果管理器
         this.effects = new EffectsManager(this.renderer.scene);
         this.combat.setEffectsManager(this.effects);
         
         this.currentSaveId = saveId;
         
-        // 启动游戏
         this.startGame();
     }
 
-    /**
-     * 显示存档列表
-     */
     async showSaveList() {
         const saves = await this.storage.getAllSaves();
         
@@ -250,7 +219,6 @@ class Game {
             return;
         }
         
-        // 显示存档列表界面
         const container = document.querySelector('.saves-container');
         if (container) {
             container.innerHTML = '';
@@ -281,7 +249,6 @@ class Game {
                 container.appendChild(div);
             });
             
-            // 删除按钮事件
             container.querySelectorAll('.delete-save-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -296,9 +263,6 @@ class Game {
         this.ui.showScreen('saveList');
     }
 
-    /**
-     * 保存设置
-     */
     async saveSettings(settings) {
         this.settings = settings;
         await this.storage.saveSettings(settings);
@@ -306,33 +270,23 @@ class Game {
         this.ui.showToast('设置已保存', 'success');
     }
 
-    /**
-     * 启动游戏循环
-     */
     startGame() {
         this.isRunning = true;
         this.input.setEnabled(true);
         this.ui.showScreen('gameUI');
         
-        // 初始化UI
         this.ui.updatePlayerHUD(this.player);
         this.ui.updateSkillBar(this.player);
         
-        // 绑定输入事件
         this.bindInputEvents();
         
-        // 开始游戏循环
         this.lastTime = performance.now();
         requestAnimationFrame((time) => this.gameLoop(time));
         
         this.ui.showToast(`欢迎来到寻道世界，${this.player.name}！`, 'info');
     }
 
-    /**
-     * 绑定输入事件
-     */
     bindInputEvents() {
-        // 鼠标点击选中目标
         this.input.on('click', (mouse, event) => {
             if (this.ui.isDialogOpen) return;
             
@@ -359,17 +313,14 @@ class Game {
             }
         });
         
-        // 右键丢弃目标
         this.input.on('rightclick', () => {
             this.combat.clearTarget();
             this.ui.updateTargetFrame(null);
         });
         
-        // 技能快捷键
         this.input.on('keydown', (key) => {
             if (this.ui.isDialogOpen) return;
             
-            // 数字键使用技能
             if (key >= '1' && key <= '7') {
                 const skillSlots = document.querySelectorAll('.skill-slot');
                 const slot = skillSlots[parseInt(key) - 1];
@@ -380,17 +331,12 @@ class Game {
         });
     }
 
-    /**
-     * 游戏主循环
-     */
     gameLoop(time) {
         if (!this.isRunning) return;
         
-        // 计算deltaTime
         this.deltaTime = (time - this.lastTime) / 1000;
         this.lastTime = time;
         
-        // 限制deltaTime防止卡顿
         this.deltaTime = Math.min(this.deltaTime, 0.1);
         
         if (!this.isPaused) {
@@ -402,17 +348,11 @@ class Game {
         requestAnimationFrame((t) => this.gameLoop(t));
     }
 
-    /**
-     * 更新游戏状态
-     */
     update(deltaTime) {
-        // 获取移动输入
         const direction = this.input.getMovementDirection();
         
-        // 更新玩家
         this.player.update(deltaTime, direction);
         
-        // 边界限制
         this.player.clampPosition(
             this.world.bounds.minX + 1,
             this.world.bounds.maxX - 1,
@@ -420,61 +360,46 @@ class Game {
             this.world.bounds.maxZ - 1
         );
         
-        // 更新相机
         this.renderer.updateCamera(this.player.mesh.position);
         
-        // 更新世界和获取怪物攻击
         const monsterAttacks = this.world.update(deltaTime, this.player);
         
-        // 处理怪物攻击
         monsterAttacks.forEach(attack => {
             const result = this.combat.processMonsterAttack(attack);
             this.handleCombatResult(result);
         });
         
-        // 更新战斗系统
         const combatResult = this.combat.update(deltaTime);
         if (combatResult) {
             this.handleCombatResult(combatResult);
         }
         
-        // 更新视觉效果
         if (this.effects) {
             this.effects.update(deltaTime);
         }
         
-        // 更新UI
         this.ui.updatePlayerHUD(this.player);
         this.ui.updateSkillBar(this.player);
         
-        // 更新目标框
         if (this.combat.target) {
             this.ui.updateTargetFrame(this.combat.target);
         }
         
-        // 自动保存（每60秒）
         this.autoSaveTimer = (this.autoSaveTimer || 0) + deltaTime;
         if (this.autoSaveTimer >= 60) {
             this.autoSaveTimer = 0;
             this.autoSave();
         }
         
-        // 检查玩家死亡
         if (this.player.hp <= 0) {
             this.handlePlayerDeath();
         }
     }
 
-    /**
-     * 渲染
-     */
     render() {
         this.renderer.render();
     }
 
-    /**
-     * 使用技能
-     */
     useSkill(skillId) {
         const result = this.combat.useSkill(skillId);
         
@@ -485,13 +410,9 @@ class Game {
         }
     }
 
-    /**
-     * 处理战斗结果
-     */
     handleCombatResult(result) {
         if (!result) return;
         
-        // 显示伤害数字
         if (result.type === 'damage' && this.settings.showDamageNumbers) {
             let screenPos;
             
@@ -506,9 +427,7 @@ class Game {
             }
         }
         
-        // 击杀奖励
         if (result.killed) {
-            // 经验
             if (result.exp) {
                 const expResults = this.player.gainExp(result.exp);
                 this.ui.showExpGain(result.exp);
@@ -522,13 +441,11 @@ class Game {
                 });
             }
             
-            // 金币
             if (result.gold) {
                 this.player.gainGold(result.gold);
                 this.ui.showGoldGain(result.gold);
             }
             
-            // 掉落物品
             if (result.drops) {
                 result.drops.forEach(drop => {
                     const item = getItem(drop.itemId);
@@ -538,15 +455,21 @@ class Game {
                 });
             }
             
-            // 清除目标
+            if (result.monsterLevel) {
+                const equipDrops = generateDrop(result.monsterLevel);
+                equipDrops.forEach(drop => {
+                    const item = getItem(drop.itemId);
+                    if (item && this.player.addItem(item, drop.count)) {
+                        this.ui.showToast(`获得装备 ${item.name}！`, 'success');
+                    }
+                });
+            }
+            
             this.combat.clearTarget();
             this.ui.updateTargetFrame(null);
         }
     }
 
-    /**
-     * 与NPC交互
-     */
     interactWithNPC(npc) {
         if (!npc.canInteract(this.player.position)) {
             this.ui.showToast('距离太远了', 'warning');
@@ -560,14 +483,10 @@ class Game {
         this.ui.showDialog(npc, dialog);
     }
 
-    /**
-     * 处理对话选项
-     */
     handleDialogOption(option) {
         const { action, next } = option;
         
         if (next) {
-            // 跳转到下一段对话
             const dialog = this.currentNPC.getDialog(next, this.player);
             this.ui.showDialog(this.currentNPC, dialog);
             return;
@@ -588,7 +507,17 @@ class Game {
                 
             case 'openShop':
                 this.ui.hideDialog();
-                this.ui.showToast('商店功能开发中...', 'info');
+                this.openBlacksmithShop();
+                break;
+                
+            case 'openSell':
+                this.ui.hideDialog();
+                this.openSellPanel();
+                break;
+                
+            case 'repairEquipment':
+                this.ui.hideDialog();
+                this.repairEquipment();
                 break;
                 
             case 'openSkills':
@@ -629,13 +558,104 @@ class Game {
         }
     }
 
-    /**
-     * 选择/重新选择职业
-     */
+    openBlacksmithShop() {
+        const shopItems = getBlacksmithShopItems();
+        
+        this.ui.showShop(shopItems, this.player.gold, 'buy', {
+            onBuy: (item, index) => {
+                this.buyItem(item);
+            }
+        });
+    }
+
+    openSellPanel() {
+        this.ui.showSellPanel(this.player, {
+            onSell: (item, index) => {
+                this.sellItem(item, index);
+            }
+        });
+    }
+
+    buyItem(item) {
+        if (this.player.gold < item.price) {
+            this.ui.showToast('金币不足！', 'warning');
+            return;
+        }
+        
+        if (this.player.inventory.length >= this.player.maxInventory) {
+            this.ui.showToast('背包已满！', 'warning');
+            return;
+        }
+        
+        this.player.gold -= item.price;
+        this.player.addItem(item, 1);
+        
+        this.ui.showToast(`购买了 ${item.name}`, 'success');
+        
+        const goldEl = document.querySelector('#shop-player-gold');
+        if (goldEl) goldEl.textContent = this.player.gold;
+        
+        this.ui.updateInventoryPanel(this.player);
+        this.ui.updatePlayerHUD(this.player);
+    }
+
+    sellItem(item, index) {
+        const sellPrice = getSellPrice(item);
+        
+        if (!item || index < 0 || index >= this.player.inventory.length) {
+            this.ui.showToast('出售失败', 'error');
+            return;
+        }
+        
+        this.player.gold += sellPrice;
+        this.player.removeItem(item.id, 1);
+        
+        this.ui.showToast(`出售了 ${item.name}，获得 ${sellPrice} 金币`, 'success');
+        
+        this.openSellPanel();
+        
+        this.ui.updateInventoryPanel(this.player);
+        this.ui.updatePlayerHUD(this.player);
+    }
+
+    repairEquipment() {
+        const repairCost = getRepairCost(this.player);
+        
+        if (repairCost === 0) {
+            if (this.currentNPC && this.currentNPC.id === 'blacksmith') {
+                const dialog = this.currentNPC.getDialog('nothingToRepair', this.player);
+                this.ui.showDialog(this.currentNPC, dialog);
+            } else {
+                this.ui.showToast('没有需要修理的装备', 'info');
+            }
+            return;
+        }
+        
+        if (this.player.gold < repairCost) {
+            if (this.currentNPC && this.currentNPC.id === 'blacksmith') {
+                const dialog = this.currentNPC.getDialog('repairFailed', this.player);
+                this.ui.showDialog(this.currentNPC, dialog);
+            } else {
+                this.ui.showToast(`金币不足！需要 ${repairCost} 金币`, 'warning');
+            }
+            return;
+        }
+        
+        this.player.gold -= repairCost;
+        
+        if (this.currentNPC && this.currentNPC.id === 'blacksmith') {
+            const dialog = this.currentNPC.getDialog('repairSuccess', this.player);
+            this.ui.showDialog(this.currentNPC, dialog);
+        } else {
+            this.ui.showToast(`装备修理完成！花费 ${repairCost} 金币`, 'success');
+        }
+        
+        this.ui.updatePlayerHUD(this.player);
+    }
+
     selectClass(classId) {
         const hadClass = !!this.player.classId;
         if (hadClass) {
-            // 移除旧职业技能
             const oldSkills = this.getClassSkillIds(this.player.classId);
             this.player.learnedSkills = this.player.learnedSkills.filter(id => !oldSkills.includes(id));
             this.player.classId = null;
@@ -644,7 +664,6 @@ class Game {
 
         this.player.classId = classId;
 
-        // 学习新职业技能
         const newSkills = this.getClassSkillIds(classId);
         newSkills.forEach(id => {
             if (!this.player.learnedSkills.includes(id)) {
@@ -652,7 +671,6 @@ class Game {
             }
         });
 
-        // 更新属性
         this.player.hp = this.player.maxHp;
         this.player.mp = this.player.maxMp;
 
@@ -661,11 +679,7 @@ class Game {
         this.ui.showToast(hadClass ? '重新转职成功！' : '转职成功！', 'success');
     }
 
-    /**
-     * 获取职业技能ID列表
-     */
     getClassSkillIds(classId) {
-        // 硬编码映射，避免异步问题
         const map = {
             body: ['ironFist', 'vajraBody', 'earthquake'],
             qi: ['qiBlast', 'thunderStrike', 'spiritShield'],
@@ -674,9 +688,6 @@ class Game {
         return map[classId] || [];
     }
 
-    /**
-     * 面板打开回调
-     */
     handlePanelOpen(panel) {
         if (panel === 'character') {
             this.ui.updateCharacterPanel(this.player);
@@ -689,41 +700,49 @@ class Game {
         }
     }
 
-    /**
-     * 处理物品点击
-     */
     handleItemClick(item, index) {
         if (!item) return;
 
-        // 使用物品逻辑
         if (item.type === 'consumable') {
-             const result = useItem(item, this.player);
-             if (result.success) {
-                 this.ui.showToast(result.message, 'success');
-                 // 减少数量或移除
-                 if (item.stackable && item.count > 1) {
-                     item.count--;
-                 } else {
-                     this.player.inventory[index] = null;
-                 }
-                 this.ui.updateInventoryPanel(this.player);
-                 this.ui.updatePlayerHUD(this.player);
-             } else {
-                 this.ui.showToast(result.message, 'warning'); // 例如满血时
-             }
+            const result = useItem(item, this.player);
+            if (result.success) {
+                this.ui.showToast(result.message, 'success');
+                this.player.removeItem(item.id, 1);
+                this.ui.updateInventoryPanel(this.player);
+                this.ui.updatePlayerHUD(this.player);
+            } else {
+                this.ui.showToast(result.message, 'warning');
+            }
+        } else if (isEquipment(item)) {
+            const result = this.player.equipItem(item, index);
+            if (result.success) {
+                this.ui.showToast(result.message, 'success');
+                this.ui.updateInventoryPanel(this.player);
+                this.ui.updatePlayerHUD(this.player);
+                this.ui.updateCharacterPanel(this.player);
+            } else {
+                this.ui.showToast(result.message, 'warning');
+            }
         } else {
-            // 其他物品显示描述
             this.ui.showToast(item.description, 'info');
         }
     }
 
-    /**
-     * 处理玩家死亡
-     */
+    handleEquipmentClick(slotId) {
+        const result = this.player.unequipItem(slotId);
+        if (result.success) {
+            this.ui.showToast(result.message, 'success');
+            this.ui.updateInventoryPanel(this.player);
+            this.ui.updatePlayerHUD(this.player);
+            this.ui.updateCharacterPanel(this.player);
+        } else {
+            this.ui.showToast(result.message, 'warning');
+        }
+    }
+
     handlePlayerDeath() {
         this.ui.showToast('你被击败了！将在原地复活...', 'error');
         
-        // 复活
         this.player.hp = this.player.maxHp;
         this.player.mp = this.player.maxMp;
         this.player.position = { x: 0, y: 0, z: 5 };
@@ -736,9 +755,6 @@ class Game {
         this.ui.updateTargetFrame(null);
     }
 
-    /**
-     * 自动保存
-     */
     async autoSave() {
         if (!this.currentSaveId) return;
         
@@ -754,17 +770,11 @@ class Game {
         }
     }
 
-    /**
-     * 手动保存
-     */
     async manualSave() {
         await this.autoSave();
         this.ui.showToast('游戏已保存', 'success');
     }
 
-    /**
-     * 切换游戏菜单
-     */
     toggleGameMenu() {
         const gameMenu = document.getElementById('game-menu');
         if (gameMenu) {
@@ -775,12 +785,10 @@ class Game {
     }
 }
 
-// 启动游戏
 window.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
     game.init();
     
-    // 暴露到全局以便调试
     window.game = game;
 });
 

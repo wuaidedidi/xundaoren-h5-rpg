@@ -6,95 +6,92 @@
 import { getRealmByLevel, getExpRequired, getRealmBonus } from '../data/realms.js';
 import { getClass, getSpecialization } from '../data/classes.js';
 import { getBaseSkills, getClassSkills } from '../data/skills.js';
+import { getItem, isEquipment, getEquipmentSlot, EQUIPMENT_SLOTS } from '../data/items.js';
+
+const DEFAULT_EQUIPMENT = {
+    weapon: null,
+    armor: null,
+    accessory: null
+};
 
 export default class Player {
     constructor(name = '玩家') {
-        // 基础信息
         this.name = name;
         this.level = 0;
         this.exp = 0;
         this.gold = 100;
         
-        // 职业信息
         this.classId = null;
         this.specializationId = null;
         
-        // 基础属性
         this.baseHp = 100;
         this.baseMp = 50;
         this.baseAttack = 10;
         this.baseDefense = 5;
         this.baseSpeed = 5;
         
-        // 装备（需要在hp/mp计算前初始化）
-        this.equipment = {
-            weapon: null,
-            armor: null,
-            accessory: null
-        };
+        this.equipment = { ...DEFAULT_EQUIPMENT };
         
-        // 增益效果
         this.buffs = [];
         
-        // 当前属性
         this.hp = this.maxHp;
         this.mp = this.maxMp;
         
-        // 位置和移动
         this.position = { x: 0, y: 0, z: 5 };
         this.rotation = 0;
         this.isMoving = false;
         this.velocity = { x: 0, z: 0 };
         
-        // 战斗状态
         this.target = null;
         this.inCombat = false;
         this.lastAttackTime = 0;
-        this.attackCooldown = 1000; // 普攻冷却1秒
+        this.attackCooldown = 1000;
         
-        // 技能冷却
         this.skillCooldowns = {};
         
-        // 背包
         this.inventory = [];
         this.maxInventory = 24;
         
-        // 已学技能
         this.learnedSkills = ['punch', 'breathe', 'dodge', 'charge'];
         
-        // 任务进度
         this.quests = [];
         this.completedQuests = [];
         
-        // 3D对象
         this.mesh = null;
         this.nameTag = null;
         
-        // 标记
         this.tutorialComplete = false;
         this.foundMysteriousElder = false;
     }
 
-    /**
-     * 计算当前境界
-     */
     get realm() {
         return getRealmByLevel(this.level);
     }
 
-    /**
-     * 计算最大生命值
-     */
+    getEquipmentStats() {
+        const stats = { attack: 0, defense: 0, hp: 0, mp: 0, speed: 0 };
+        
+        Object.values(this.equipment).forEach(equip => {
+            if (equip && equip.stats) {
+                if (equip.stats.attack) stats.attack += equip.stats.attack;
+                if (equip.stats.defense) stats.defense += equip.stats.defense;
+                if (equip.stats.hp) stats.hp += equip.stats.hp;
+                if (equip.stats.mp) stats.mp += equip.stats.mp;
+                if (equip.stats.speed) stats.speed += equip.stats.speed;
+            }
+        });
+        
+        return stats;
+    }
+
     get maxHp() {
         let base = this.baseHp;
         
-        // 职业加成
         if (this.classId) {
             const cls = getClass(this.classId);
             if (cls) base = cls.baseStats.hp;
         }
         
-        // 专精加成
         if (this.classId && this.specializationId) {
             const spec = getSpecialization(this.classId, this.specializationId);
             if (spec && spec.bonusStats.hp) {
@@ -102,20 +99,14 @@ export default class Player {
             }
         }
         
-        // 境界加成
         base *= getRealmBonus(this.level);
         
-        // 装备加成
-        if (this.equipment.armor && this.equipment.armor.stats.hp) {
-            base += this.equipment.armor.stats.hp;
-        }
+        const equipStats = this.getEquipmentStats();
+        base += equipStats.hp;
         
         return Math.floor(base);
     }
 
-    /**
-     * 计算最大法力值
-     */
     get maxMp() {
         let base = this.baseMp;
         
@@ -133,12 +124,12 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
+        const equipStats = this.getEquipmentStats();
+        base += equipStats.mp;
+        
         return Math.floor(base);
     }
 
-    /**
-     * 计算攻击力
-     */
     get attack() {
         let base = this.baseAttack;
         
@@ -156,11 +147,9 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.weapon && this.equipment.weapon.stats.attack) {
-            base += this.equipment.weapon.stats.attack;
-        }
+        const equipStats = this.getEquipmentStats();
+        base += equipStats.attack;
         
-        // 蓄力buff
         const chargeBuff = this.buffs.find(b => b.id === 'charge');
         if (chargeBuff) {
             base *= (1 + chargeBuff.damageBonus);
@@ -169,9 +158,6 @@ export default class Player {
         return Math.floor(base);
     }
 
-    /**
-     * 计算防御力
-     */
     get defense() {
         let base = this.baseDefense;
         
@@ -189,16 +175,12 @@ export default class Player {
         
         base *= getRealmBonus(this.level);
         
-        if (this.equipment.armor && this.equipment.armor.stats.defense) {
-            base += this.equipment.armor.stats.defense;
-        }
+        const equipStats = this.getEquipmentStats();
+        base += equipStats.defense;
         
         return Math.floor(base);
     }
 
-    /**
-     * 计算移动速度
-     */
     get speed() {
         let base = this.baseSpeed;
         
@@ -207,32 +189,25 @@ export default class Player {
             if (cls) base = cls.baseStats.speed;
         }
         
+        const equipStats = this.getEquipmentStats();
+        base += equipStats.speed;
+        
         return base;
     }
 
-    /**
-     * 获取职业名称
-     */
     get className() {
         if (!this.classId) return null;
         const cls = getClass(this.classId);
         return cls ? cls.name : null;
     }
 
-    /**
-     * 获取专精名称
-     */
     get specializationName() {
         if (!this.classId || !this.specializationId) return null;
         const spec = getSpecialization(this.classId, this.specializationId);
         return spec ? spec.name : null;
     }
 
-    /**
-     * 创建3D模型
-     */
     createMesh() {
-        // 创建圆柱体（角色）
         const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1.8, 16);
         const material = new THREE.MeshLambertMaterial({ 
             color: 0x00aaff,
@@ -248,18 +223,13 @@ export default class Player {
         return this.mesh;
     }
 
-    /**
-     * 更新位置
-     */
     update(deltaTime, direction) {
-        // 移动处理
         if (direction.x !== 0 || direction.z !== 0) {
             const moveSpeed = this.speed * deltaTime * 5;
             
             this.position.x += direction.x * moveSpeed;
             this.position.z += direction.z * moveSpeed;
             
-            // 旋转朝向移动方向
             this.rotation = Math.atan2(direction.x, direction.z);
             
             this.isMoving = true;
@@ -267,28 +237,20 @@ export default class Player {
             this.isMoving = false;
         }
         
-        // 更新3D对象
         if (this.mesh) {
             this.mesh.position.x = this.position.x;
             this.mesh.position.z = this.position.z;
             this.mesh.rotation.y = this.rotation;
         }
         
-        // 更新buff持续时间
         this.updateBuffs(deltaTime);
-        
-        // 更新技能冷却
         this.updateCooldowns(deltaTime);
         
-        // 生命/法力回复（脱战时）
         if (!this.inCombat) {
             this.regenTick(deltaTime);
         }
     }
 
-    /**
-     * 更新buff
-     */
     updateBuffs(deltaTime) {
         this.buffs = this.buffs.filter(buff => {
             buff.remaining -= deltaTime * 1000;
@@ -296,9 +258,6 @@ export default class Player {
         });
     }
 
-    /**
-     * 更新冷却
-     */
     updateCooldowns(deltaTime) {
         for (const skillId in this.skillCooldowns) {
             this.skillCooldowns[skillId] -= deltaTime * 1000;
@@ -308,31 +267,22 @@ export default class Player {
         }
     }
 
-    /**
-     * 脱战回复
-     */
     regenTick(deltaTime) {
-        // 每秒回复1%
         const regenRate = 0.01 * deltaTime;
         this.hp = Math.min(this.maxHp, this.hp + this.maxHp * regenRate);
         this.mp = Math.min(this.maxMp, this.mp + this.maxMp * regenRate);
     }
 
-    /**
-     * 受到伤害
-     */
     takeDamage(amount) {
-        // 检查金刚不坏buff
         const vajraBuff = this.buffs.find(b => b.id === 'vajraBody');
         if (vajraBuff) {
             amount *= (1 - vajraBuff.damageReduction);
         }
         
-        // 检查灵盾buff
         const shieldBuff = this.buffs.find(b => b.id === 'spiritShield');
         if (shieldBuff) {
             this.buffs = this.buffs.filter(b => b.id !== 'spiritShield');
-            return 0; // 完全吸收
+            return 0;
         }
         
         const finalDamage = Math.max(1, Math.floor(amount - this.defense * 0.5));
@@ -342,29 +292,19 @@ export default class Player {
         return finalDamage;
     }
 
-    /**
-     * 治疗
-     */
     heal(amount) {
         const actualHeal = Math.min(amount, this.maxHp - this.hp);
         this.hp += actualHeal;
         return actualHeal;
     }
 
-    /**
-     * 消耗法力
-     */
     useMp(amount) {
         if (this.mp < amount) return false;
         this.mp -= amount;
         return true;
     }
 
-    /**
-     * 获得经验
-     */
     gainExp(amount) {
-        // 设置蓄力buff使用后清除
         const chargeBuff = this.buffs.find(b => b.id === 'charge' && b.consumed);
         if (chargeBuff) {
             this.buffs = this.buffs.filter(b => b !== chargeBuff);
@@ -374,7 +314,6 @@ export default class Player {
         
         const results = [];
         
-        // 检查升级
         while (this.level < 81) {
             const required = getExpRequired(this.level);
             if (this.exp >= required) {
@@ -382,11 +321,9 @@ export default class Player {
                 this.level++;
                 results.push({ type: 'levelUp', level: this.level });
                 
-                // 升级回满血蓝
                 this.hp = this.maxHp;
                 this.mp = this.maxMp;
                 
-                // 检查境界突破
                 const newRealm = getRealmByLevel(this.level);
                 const oldRealm = getRealmByLevel(this.level - 1);
                 if (newRealm.name !== oldRealm.name) {
@@ -400,23 +337,16 @@ export default class Player {
         return results;
     }
 
-    /**
-     * 获得金币
-     */
     gainGold(amount) {
         this.gold += amount;
     }
 
-    /**
-     * 选择职业
-     */
     selectClass(classId) {
         if (this.level < 10) return false;
         if (this.classId) return false;
         
         this.classId = classId;
         
-        // 学习职业技能
         const classSkills = getClassSkills(classId);
         classSkills.forEach(skill => {
             if (!this.learnedSkills.includes(skill.id)) {
@@ -424,16 +354,12 @@ export default class Player {
             }
         });
         
-        // 更新属性
         this.hp = this.maxHp;
         this.mp = this.maxMp;
         
         return true;
     }
 
-    /**
-     * 选择专精
-     */
     selectSpecialization(specId) {
         if (this.level < 30) return false;
         if (!this.classId) return false;
@@ -444,18 +370,99 @@ export default class Player {
         
         this.specializationId = specId;
         
-        // 更新属性
         this.hp = this.maxHp;
         this.mp = this.maxMp;
         
         return true;
     }
 
-    /**
-     * 添加物品到背包
-     */
+    equipItem(item, inventoryIndex) {
+        if (!isEquipment(item)) {
+            return { success: false, message: '该物品不是装备' };
+        }
+        
+        const slot = getEquipmentSlot(item);
+        if (!slot || !EQUIPMENT_SLOTS[slot]) {
+            return { success: false, message: '无效的装备槽位' };
+        }
+        
+        const currentEquip = this.equipment[slot];
+        
+        if (currentEquip) {
+            if (this.inventory.length >= this.maxInventory) {
+                return { success: false, message: '背包已满，无法替换装备' };
+            }
+            this.inventory.push({ itemId: currentEquip.itemId || currentEquip.id, count: 1 });
+        }
+        
+        this.equipment[slot] = {
+            itemId: item.id,
+            name: item.name,
+            icon: item.icon,
+            rarity: item.rarity || 'common',
+            stats: { ...item.stats }
+        };
+        
+        if (inventoryIndex !== undefined && inventoryIndex !== null) {
+            this.inventory.splice(inventoryIndex, 1);
+        } else {
+            const idx = this.inventory.findIndex(inv => inv.itemId === item.id);
+            if (idx !== -1) {
+                this.inventory.splice(idx, 1);
+            }
+        }
+        
+        this.hp = Math.min(this.hp, this.maxHp);
+        this.mp = Math.min(this.mp, this.maxMp);
+        
+        return { 
+            success: true, 
+            message: `已装备 ${item.name}`,
+            replaced: currentEquip
+        };
+    }
+
+    unequipItem(slot) {
+        if (!EQUIPMENT_SLOTS[slot]) {
+            return { success: false, message: '无效的装备槽位' };
+        }
+        
+        const currentEquip = this.equipment[slot];
+        if (!currentEquip) {
+            return { success: false, message: '该槽位没有装备' };
+        }
+        
+        if (this.inventory.length >= this.maxInventory) {
+            return { success: false, message: '背包已满，无法卸下装备' };
+        }
+        
+        this.inventory.push({ 
+            itemId: currentEquip.itemId || currentEquip.id, 
+            count: 1 
+        });
+        
+        const unequippedName = currentEquip.name;
+        this.equipment[slot] = null;
+        
+        this.hp = Math.min(this.hp, this.maxHp);
+        this.mp = Math.min(this.mp, this.maxMp);
+        
+        return { 
+            success: true, 
+            message: `已卸下 ${unequippedName}` 
+        };
+    }
+
+    getEquipment(slot) {
+        if (!EQUIPMENT_SLOTS[slot]) return null;
+        return this.equipment[slot];
+    }
+
+    getAllEquipment() {
+        return { ...this.equipment };
+    }
+
     addItem(item, count = 1) {
-        // 检查是否可堆叠
         if (item.stackable) {
             const existing = this.inventory.find(inv => inv.itemId === item.id);
             if (existing) {
@@ -464,7 +471,6 @@ export default class Player {
             }
         }
         
-        // 检查背包空间
         if (this.inventory.length >= this.maxInventory) {
             return false;
         }
@@ -473,9 +479,6 @@ export default class Player {
         return true;
     }
 
-    /**
-     * 移除物品
-     */
     removeItem(itemId, count = 1) {
         const index = this.inventory.findIndex(inv => inv.itemId === itemId);
         if (index === -1) return false;
@@ -488,17 +491,19 @@ export default class Player {
         return true;
     }
 
-    /**
-     * 检查是否有物品
-     */
     hasItem(itemId, count = 1) {
         const item = this.inventory.find(inv => inv.itemId === itemId);
         return item && item.count >= count;
     }
 
-    /**
-     * 边界检查
-     */
+    getInventoryItem(index) {
+        if (index < 0 || index >= this.inventory.length) return null;
+        const invItem = this.inventory[index];
+        if (!invItem) return null;
+        const itemData = getItem(invItem.itemId);
+        return itemData ? { ...itemData, count: invItem.count, inventoryIndex: index } : null;
+    }
+
     clampPosition(minX, maxX, minZ, maxZ) {
         this.position.x = Math.max(minX, Math.min(maxX, this.position.x));
         this.position.z = Math.max(minZ, Math.min(maxZ, this.position.z));
@@ -509,9 +514,6 @@ export default class Player {
         }
     }
 
-    /**
-     * 转换为存档数据
-     */
     toSaveData() {
         return {
             name: this.name,
@@ -523,8 +525,8 @@ export default class Player {
             hp: this.hp,
             mp: this.mp,
             position: { ...this.position },
-            inventory: [...this.inventory],
-            equipment: { ...this.equipment },
+            inventory: JSON.parse(JSON.stringify(this.inventory)),
+            equipment: JSON.parse(JSON.stringify(this.equipment)),
             learnedSkills: [...this.learnedSkills],
             quests: [...this.quests],
             completedQuests: [...this.completedQuests],
@@ -533,11 +535,49 @@ export default class Player {
         };
     }
 
-    /**
-     * 从存档数据恢复
-     */
     loadFromSaveData(data) {
-        Object.assign(this, data);
+        if (!data) return;
+        
+        this.name = data.name || '玩家';
+        this.level = data.level || 0;
+        this.exp = data.exp || 0;
+        this.gold = data.gold || 100;
+        this.classId = data.classId || null;
+        this.specializationId = data.specializationId || null;
+        this.hp = data.hp || this.maxHp;
+        this.mp = data.mp || this.maxMp;
+        this.position = data.position ? { ...data.position } : { x: 0, y: 0, z: 5 };
+        this.inventory = Array.isArray(data.inventory) ? JSON.parse(JSON.stringify(data.inventory)) : [];
+        this.learnedSkills = Array.isArray(data.learnedSkills) ? [...data.learnedSkills] : ['punch', 'breathe', 'dodge', 'charge'];
+        this.quests = Array.isArray(data.quests) ? [...data.quests] : [];
+        this.completedQuests = Array.isArray(data.completedQuests) ? [...data.completedQuests] : [];
+        this.tutorialComplete = data.tutorialComplete || false;
+        this.foundMysteriousElder = data.foundMysteriousElder || false;
+        
+        if (data.equipment && typeof data.equipment === 'object') {
+            this.equipment = { ...DEFAULT_EQUIPMENT };
+            
+            Object.keys(EQUIPMENT_SLOTS).forEach(slot => {
+                if (data.equipment[slot]) {
+                    const equip = data.equipment[slot];
+                    
+                    if (equip.itemId) {
+                        this.equipment[slot] = { ...equip };
+                    } else if (equip.id) {
+                        this.equipment[slot] = {
+                            itemId: equip.id,
+                            name: equip.name,
+                            icon: equip.icon,
+                            rarity: equip.rarity || 'common',
+                            stats: equip.stats ? { ...equip.stats } : {}
+                        };
+                    }
+                }
+            });
+        } else {
+            this.equipment = { ...DEFAULT_EQUIPMENT };
+        }
+        
         this.hp = Math.min(this.hp, this.maxHp);
         this.mp = Math.min(this.mp, this.maxMp);
     }
