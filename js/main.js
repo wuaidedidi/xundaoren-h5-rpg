@@ -408,10 +408,10 @@ class Game {
     update(deltaTime) {
         // 获取移动输入
         const direction = this.input.getMovementDirection();
-        
-        // 更新玩家
-        this.player.update(deltaTime, direction);
-        
+
+        // 更新玩家 - 传入地形高度函数以适配起伏地面
+        this.player.update(deltaTime, direction, (x, z) => this.world.getTerrainHeightAt(x, z));
+
         // 边界限制
         this.player.clampPosition(
             this.world.bounds.minX + 1,

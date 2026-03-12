@@ -250,36 +250,45 @@ export default class Player {
 
     /**
      * 更新位置
+     * @param {number} deltaTime - 时间增量
+     * @param {Object} direction - 移动方向
+     * @param {Function} getTerrainHeight - 获取地形高度的回调函数
      */
-    update(deltaTime, direction) {
+    update(deltaTime, direction, getTerrainHeight = null) {
         // 移动处理
         if (direction.x !== 0 || direction.z !== 0) {
             const moveSpeed = this.speed * deltaTime * 5;
-            
+
             this.position.x += direction.x * moveSpeed;
             this.position.z += direction.z * moveSpeed;
-            
+
             // 旋转朝向移动方向
             this.rotation = Math.atan2(direction.x, direction.z);
-            
+
             this.isMoving = true;
         } else {
             this.isMoving = false;
         }
-        
+
+        // 根据地形高度更新Y位置
+        if (getTerrainHeight) {
+            this.position.y = getTerrainHeight(this.position.x, this.position.z);
+        }
+
         // 更新3D对象
         if (this.mesh) {
             this.mesh.position.x = this.position.x;
+            this.mesh.position.y = this.position.y + 0.9; // 角色中心点偏移
             this.mesh.position.z = this.position.z;
             this.mesh.rotation.y = this.rotation;
         }
-        
+
         // 更新buff持续时间
         this.updateBuffs(deltaTime);
-        
+
         // 更新技能冷却
         this.updateCooldowns(deltaTime);
-        
+
         // 生命/法力回复（脱战时）
         if (!this.inCombat) {
             this.regenTick(deltaTime);

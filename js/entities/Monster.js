@@ -79,8 +79,11 @@ export default class Monster {
 
     /**
      * 更新AI
+     * @param {number} deltaTime - 时间增量
+     * @param {Object} player - 玩家对象
+     * @param {Function} getTerrainHeight - 获取地形高度的回调函数
      */
-    update(deltaTime, player) {
+    update(deltaTime, player, getTerrainHeight = null) {
         if (this.isDead) {
             this.deadTimer += deltaTime * 1000;
             if (this.deadTimer >= this.respawnTime) {
@@ -88,10 +91,10 @@ export default class Monster {
             }
             return;
         }
-        
+
         const distanceToPlayer = this.getDistanceTo(player.position);
         const distanceToSpawn = this.getDistanceTo(this.spawnPosition);
-        
+
         switch (this.state) {
             case 'idle':
                 this.updateIdle(deltaTime, distanceToPlayer);
@@ -109,10 +112,16 @@ export default class Monster {
                 this.updateReturn(deltaTime);
                 break;
         }
-        
+
+        // 根据地形高度更新Y位置
+        if (getTerrainHeight) {
+            this.position.y = getTerrainHeight(this.position.x, this.position.z);
+        }
+
         // 更新3D对象位置
         if (this.mesh) {
             this.mesh.position.x = this.position.x;
+            this.mesh.position.y = this.position.y + this.size / 2;
             this.mesh.position.z = this.position.z;
             this.mesh.rotation.y = this.rotation;
         }
