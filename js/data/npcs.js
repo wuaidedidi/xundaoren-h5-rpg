@@ -43,12 +43,70 @@ export const NPCS = {
         color: 0xffa500,
         size: 1.1,
         position: { x: -10, y: 0, z: 5 },
-        type: 'craft',
+        type: 'shop',
         dialogs: {
             default: {
-                text: '哈哈！来找我打造装备吗？可惜现在材料不够，等你收集够了再来吧！',
+                text: '哈哈！欢迎光临！我这里有各种武器、护甲和饰品，保证让你实力大增！',
                 options: [
-                    { text: '好的', action: 'close' }
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '出售物品', action: 'openSell' },
+                    { text: '修理装备', action: 'repairEquipment' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            buySuccess: {
+                text: '交易完成！还需要其他东西吗？',
+                options: [
+                    { text: '继续购买', action: 'openShop' },
+                    { text: '出售物品', action: 'openSell' },
+                    { text: '修理装备', action: 'repairEquipment' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            buyFailed: {
+                text: '哎呀，好像出了点问题。是金币不够还是背包满了？',
+                options: [
+                    { text: '再看看', action: 'openShop' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            sellSuccess: {
+                text: '好东西！收下了。还需要什么吗？',
+                options: [
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '继续出售', action: 'openSell' },
+                    { text: '修理装备', action: 'repairEquipment' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            sellFailed: {
+                text: '这个...我好像不需要。换别的试试？',
+                options: [
+                    { text: '继续出售', action: 'openSell' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            repairSuccess: {
+                text: '修好了！你的装备现在焕然一新。还需要什么吗？',
+                options: [
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '出售物品', action: 'openSell' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            repairFailed: {
+                text: '金币不够啊，修装备可是要花钱的。',
+                options: [
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '出售物品', action: 'openSell' },
+                    { text: '告辞', action: 'close' }
+                ]
+            },
+            nothingToRepair: {
+                text: '你身上没有需要修理的装备啊。',
+                options: [
+                    { text: '购买装备', action: 'openShop' },
+                    { text: '告辞', action: 'close' }
                 ]
             }
         }
@@ -104,23 +162,14 @@ export const NPCS = {
     }
 };
 
-/**
- * 获取NPC信息
- */
 export function getNPC(npcId) {
     return NPCS[npcId] || null;
 }
 
-/**
- * 获取所有NPC列表
- */
 export function getAllNPCs() {
     return Object.values(NPCS);
 }
 
-/**
- * 获取可见的NPC（排除隐藏NPC）
- */
 export function getVisibleNPCs() {
     return Object.values(NPCS).filter(npc => !npc.hidden);
 }
