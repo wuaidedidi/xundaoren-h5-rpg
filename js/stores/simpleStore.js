@@ -14,6 +14,7 @@ class SimpleStore {
     this._isCommitting = false;
 
     // 包装 getters
+
     this.getters = {};
     this._wrapGetters();
 
