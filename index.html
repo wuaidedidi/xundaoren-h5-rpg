@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻道人 - H5修仙游戏</title>
+    <meta name="description" content="寻道人 - 一款H5开放世界3D修仙游戏，从凡人到大罗金仙的修仙之旅">
+    <meta name="keywords" content="寻道人,H5游戏,3D游戏,修仙游戏,网页游戏">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- 游戏容器 -->
+    <div id="game-container">
+        <!-- 加载界面 -->
+        <div id="loading-screen">
+            <div class="loading-content">
+                <h1 class="game-title">寻道人</h1>
+                <p class="subtitle">从凡人到大罗金仙的修仙之旅</p>
+                <div class="loading-bar">
+                    <div class="loading-progress" id="loading-progress"></div>
+                </div>
+                <p class="loading-text" id="loading-text">正在加载游戏资源...</p>
+            </div>
+        </div>
+        
+        <!-- 主菜单 -->
+        <div id="main-menu" class="hidden">
+            <div class="menu-content">
+                <h1 class="game-title">寻道人</h1>
+                <p class="menu-subtitle">修仙之路，道法自然</p>
+                <div class="menu-buttons">
+                    <button id="btn-new-game" class="menu-btn primary">
+                        <span class="btn-icon">🎮</span>
+                        <span class="btn-text">开始新游戏</span>
+                    </button>
+                    <button id="btn-load-game" class="menu-btn">
+                        <span class="btn-icon">📂</span>
+                        <span class="btn-text">读取存档</span>
+                    </button>
+                    <button id="btn-settings" class="menu-btn">
+                        <span class="btn-icon">⚙️</span>
+                        <span class="btn-text">游戏设置</span>
+                    </button>
+                </div>
+                <div class="menu-footer">
+                    <p>操作提示：WASD移动 | 鼠标左键选中 | 右键/E交互 | 1-9技能</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 角色创建界面 -->
+        <div id="create-character" class="hidden">
+            <div class="create-content">
+                <h2>创建角色</h2>
+                <div class="create-form">
+                    <div class="form-group">
+                        <label for="char-name">道号（角色名）</label>
+                        <input type="text" id="char-name" placeholder="请输入你的道号" maxlength="12">
+                    </div>
+                    <div class="form-buttons">
+                        <button id="btn-create-confirm" class="menu-btn primary">踏上修仙之路</button>
+                        <button id="btn-create-back" class="menu-btn">返回</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 存档列表 -->
+        <div id="save-list" class="hidden">
+            <div class="save-content">
+                <h2>选择存档</h2>
+                <div class="saves-container" id="saves-container">
+                    <p class="no-saves">暂无存档</p>
+                </div>
+                <div class="save-buttons">
+                    <button id="btn-save-back" class="menu-btn">返回</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 设置界面 -->
+        <div id="settings-panel" class="hidden">
+            <div class="settings-content">
+                <h2>游戏设置</h2>
+                <div class="settings-form">
+                    <div class="setting-item">
+                        <label>画质设置</label>
+                        <select id="setting-quality">
+                            <option value="low">低</option>
+                            <option value="medium" selected>中</option>
+                            <option value="high">高</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>显示伤害数字</label>
+                        <input type="checkbox" id="setting-damage" checked>
+                    </div>
+                </div>
+                <div class="settings-buttons">
+                    <button id="btn-settings-save" class="menu-btn primary">保存</button>
+                    <button id="btn-settings-back" class="menu-btn">返回</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3D渲染画布 -->
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- 游戏UI层 -->
+        <div id="game-ui" class="hidden">
+            <!-- 顶部状态栏 -->
+            <div id="top-bar">
+                <div class="player-info">
+                    <div class="avatar" id="player-avatar">
+                        <span class="avatar-icon">🧑</span>
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat-row">
+                            <span class="player-name" id="player-name">玩家</span>
+                            <span class="player-level" id="player-level">Lv.0</span>
+                        </div>
+                        <div class="bar-container hp-bar">
+                            <div class="bar-fill hp-fill" id="hp-fill" style="width: 100%"></div>
+                            <span class="bar-text" id="hp-text">100/100</span>
+                        </div>
+                        <div class="bar-container mp-bar">
+                            <div class="bar-fill mp-fill" id="mp-fill" style="width: 100%"></div>
+                            <span class="bar-text" id="mp-text">50/50</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-realm">
+                    <span id="player-realm" class="realm-badge">凡人</span>
+                    <span id="player-class" class="class-badge"></span>
+                </div>
+                <div class="top-buttons">
+                    <button id="btn-character" class="icon-btn" title="角色面板(C)">👤</button>
+                    <button id="btn-inventory" class="icon-btn" title="背包(B)">🎒</button>
+                    <button id="btn-skills" class="icon-btn" title="技能(K)">📖</button>
+                    <button id="btn-quests" class="icon-btn" title="任务(Q)">📜</button>
+                    <button id="btn-save" class="icon-btn" title="存档">💾</button>
+                    <button id="btn-menu" class="icon-btn" title="菜单(ESC)">⚙️</button>
+                </div>
+            </div>
+            
+            <!-- 目标框 -->
+            <div id="target-frame" class="hidden">
+                <div class="target-info">
+                    <span class="target-name" id="target-name">目标名称</span>
+                    <span class="target-level" id="target-level">Lv.1</span>
+                </div>
+                <div class="bar-container target-hp-bar">
+                    <div class="bar-fill target-hp-fill" id="target-hp-fill" style="width: 100%"></div>
+                    <span class="bar-text" id="target-hp-text">100/100</span>
+                </div>
+            </div>
+            
+            <!-- 对话框 -->
+            <div id="dialog-box" class="hidden">
+                <div class="dialog-header">
+                    <span class="dialog-speaker" id="dialog-speaker">NPC名称</span>
+                    <button class="dialog-close" id="dialog-close">×</button>
+                </div>
+                <div class="dialog-content" id="dialog-content">对话内容...</div>
+                <div class="dialog-options" id="dialog-options"></div>
+            </div>
+            
+            <!-- 提示消息区域 -->
+            <div id="message-area"></div>
+            
+            <!-- 战斗日志 -->
+            <div id="combat-log">
+                <div class="log-content" id="log-content"></div>
+            </div>
+            
+            <!-- 技能栏 -->
+            <div id="skill-bar">
+                <div class="skill-slot" data-key="1" id="skill-1">
+                    <span class="skill-key">1</span>
+                    <span class="skill-name">挥拳</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot" data-key="2" id="skill-2">
+                    <span class="skill-key">2</span>
+                    <span class="skill-name">吐纳</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot" data-key="3" id="skill-3">
+                    <span class="skill-key">3</span>
+                    <span class="skill-name">闪避</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot" data-key="4" id="skill-4">
+                    <span class="skill-key">4</span>
+                    <span class="skill-name">蓄力</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot locked" data-key="5" id="skill-5">
+                    <span class="skill-key">5</span>
+                    <span class="skill-name">-</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot locked" data-key="6" id="skill-6">
+                    <span class="skill-key">6</span>
+                    <span class="skill-name">-</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot locked" data-key="7" id="skill-7">
+                    <span class="skill-key">7</span>
+                    <span class="skill-name">-</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+                <div class="skill-slot ultimate locked" data-key="0" id="skill-0">
+                    <span class="skill-key">0</span>
+                    <span class="skill-name">大招</span>
+                    <div class="skill-cooldown"></div>
+                </div>
+            </div>
+            
+            <!-- 经验条 -->
+            <div id="exp-bar">
+                <div class="exp-fill" id="exp-fill" style="width: 0%"></div>
+                <span class="exp-text" id="exp-text">0/50 EXP</span>
+            </div>
+        </div>
+        
+        <!-- 角色面板 -->
+        <div id="character-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>角色信息</h2>
+                <button class="panel-close" data-panel="character-panel">×</button>
+            </div>
+            <div class="panel-content" id="character-content"></div>
+        </div>
+        
+        <!-- 背包面板 -->
+        <div id="inventory-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>背包</h2>
+                <button class="panel-close" data-panel="inventory-panel">×</button>
+            </div>
+            <div class="panel-content">
+                <div class="inventory-gold">
+                    <span>灵石：</span>
+                    <span id="player-gold">0</span>
+                </div>
+                <div class="inventory-grid" id="inventory-grid"></div>
+            </div>
+        </div>
+        
+        <!-- 技能面板 -->
+        <div id="skills-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>技能</h2>
+                <button class="panel-close" data-panel="skills-panel">×</button>
+            </div>
+            <div class="panel-content" id="skills-content"></div>
+        </div>
+        
+        <!-- 任务面板 -->
+        <div id="quests-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>任务</h2>
+                <button class="panel-close" data-panel="quests-panel">×</button>
+            </div>
+            <div class="panel-content" id="quests-content">
+                <p class="no-quests">暂无任务</p>
+            </div>
+        </div>
+        
+        <!-- 商店面板 -->
+        <div id="shop-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2 id="shop-title">商店</h2>
+                <button class="panel-close" data-panel="shop-panel">×</button>
+            </div>
+            <div class="panel-content">
+                <div class="shop-gold">
+                    <span>你的灵石：</span>
+                    <span id="shop-player-gold">0</span>
+                </div>
+                <div class="shop-items" id="shop-items"></div>
+            </div>
+        </div>
+        
+        <!-- 转职面板 -->
+        <div id="class-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>选择职业</h2>
+            </div>
+            <div class="panel-content" id="class-content">
+                <div class="class-options">
+                    <div class="class-option" data-class="body">
+                        <div class="class-icon">💪</div>
+                        <h3>锻体</h3>
+                        <p>以肉身证道，近战坦克</p>
+                        <ul>
+                            <li>高生命值和防御</li>
+                            <li>强力近战技能</li>
+                            <li>30级专精：金刚道/力王道</li>
+                        </ul>
+                        <button class="class-select-btn">选择锻体</button>
+                    </div>
+                    <div class="class-option" data-class="qi">
+                        <div class="class-icon">🌀</div>
+                        <h3>练气</h3>
+                        <p>以灵气御敌，远程法师</p>
+                        <ul>
+                            <li>高攻击力和法力</li>
+                            <li>强力远程技能</li>
+                            <li>30级专精：雷法道/火法道</li>
+                        </ul>
+                        <button class="class-select-btn">选择练气</button>
+                    </div>
+                    <div class="class-option" data-class="spirit">
+                        <div class="class-icon">👻</div>
+                        <h3>通灵</h3>
+                        <p>以神魂服众，控制辅助</p>
+                        <ul>
+                            <li>平衡型属性</li>
+                            <li>控制与辅助技能</li>
+                            <li>30级专精：驭灵道/医仙道</li>
+                        </ul>
+                        <button class="class-select-btn">选择通灵</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 专精面板 -->
+        <div id="spec-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>选择专精</h2>
+            </div>
+            <div class="panel-content" id="spec-content"></div>
+        </div>
+        
+        <!-- 游戏内菜单 -->
+        <div id="game-menu" class="hidden">
+            <div class="game-menu-content">
+                <h2>游戏菜单</h2>
+                <div class="game-menu-buttons">
+                    <button id="btn-resume" class="menu-btn primary">继续游戏</button>
+                    <button id="btn-save-game" class="menu-btn">保存游戏</button>
+                    <button id="btn-quit" class="menu-btn danger">返回主菜单</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作提示 -->
+        <div id="controls-hint" class="hidden">
+            <div class="hint-content">
+                <h3>⌨️ 操作说明</h3>
+                <div class="hint-grid">
+                    <div class="hint-item">
+                        <span class="key">W A S D</span>
+                        <span class="desc">移动角色</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">鼠标左键</span>
+                        <span class="desc">选中目标</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">鼠标右键 / E</span>
+                        <span class="desc">与目标交互</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">1 - 7, 0</span>
+                        <span class="desc">使用技能</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">Tab</span>
+                        <span class="desc">切换目标</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">空格</span>
+                        <span class="desc">跳跃</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">B</span>
+                        <span class="desc">打开背包</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">K</span>
+                        <span class="desc">打开技能</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">C</span>
+                        <span class="desc">角色面板</span>
+                    </div>
+                    <div class="hint-item">
+                        <span class="key">ESC</span>
+                        <span class="desc">游戏菜单</span>
+                    </div>
+                </div>
+                <button id="hide-hint" class="menu-btn">知道了</button>
+            </div>
+        </div>
+        
+        <!-- 确认对话框 -->
+        <div id="confirm-dialog" class="hidden">
+            <div class="confirm-content">
+                <p id="confirm-message">确认操作？</p>
+                <div class="confirm-buttons">
+                    <button id="confirm-yes" class="menu-btn primary">确认</button>
+                    <button id="confirm-no" class="menu-btn">取消</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Toast消息 -->
+        <div id="toast-container"></div>
+    </div>
+    
+    <!-- 脚本加载 -->
+    <script src="js/lib/three.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

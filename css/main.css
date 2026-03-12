@@ -1,0 +1,1653 @@
+/* ===============================================
+   寻道人 - 主样式文件
+   =============================================== */
+
+/* CSS变量定义 */
+:root {
+    /* 主题色 */
+    --primary-color: #8b5cf6;
+    --primary-dark: #6d28d9;
+    --primary-light: #a78bfa;
+    
+    /* 功能色 */
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    
+    /* HP/MP颜色 */
+    --hp-color: #22c55e;
+    --hp-bg: #166534;
+    --mp-color: #3b82f6;
+    --mp-bg: #1e40af;
+    --exp-color: #eab308;
+    --exp-bg: #713f12;
+    
+    /* 背景色 */
+    --bg-dark: #0f0f1a;
+    --bg-medium: #1a1a2e;
+    --bg-light: #252540;
+    --bg-panel: rgba(26, 26, 46, 0.95);
+    
+    /* 文字色 */
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b0;
+    --text-muted: #606070;
+    
+    /* 边框 */
+    --border-color: rgba(139, 92, 246, 0.3);
+    --border-glow: rgba(139, 92, 246, 0.6);
+    
+    /* 阴影 */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+    
+    /* 圆角 */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    
+    /* 过渡 */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* 字体 */
+    --font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 基础重置 */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-family);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-dark);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* ===============================================
+   游戏容器
+   =============================================== */
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* ===============================================
+   加载界面
+   =============================================== */
+#loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0a2e 50%, var(--bg-dark) 100%);
+}
+
+.loading-content {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.game-title {
+    font-size: 72px;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--primary-light), #fff, var(--primary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+    margin-bottom: 16px;
+    letter-spacing: 8px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    letter-spacing: 4px;
+}
+
+.loading-bar {
+    width: 300px;
+    height: 8px;
+    background: var(--bg-light);
+    border-radius: 4px;
+    margin: 0 auto 20px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.loading-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.loading-text {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* ===============================================
+   主菜单
+   =============================================== */
+#main-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0a2e 50%, var(--bg-dark) 100%);
+}
+
+.menu-content {
+    text-align: center;
+    animation: slideUp 0.5s ease;
+}
+
+.menu-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 50px;
+    letter-spacing: 6px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 280px;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-light);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: inherit;
+}
+
+.menu-btn:hover {
+    background: var(--bg-medium);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.menu-btn.primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+}
+
+.menu-btn.primary:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+}
+
+.menu-btn.danger {
+    border-color: var(--danger-color);
+}
+
+.menu-btn.danger:hover {
+    background: var(--danger-color);
+}
+
+.btn-icon {
+    font-size: 20px;
+}
+
+.menu-footer {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* ===============================================
+   角色创建 / 存档列表 / 设置
+   =============================================== */
+#create-character,
+#save-list,
+#settings-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 910;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 15, 26, 0.95);
+}
+
+.create-content,
+.save-content,
+.settings-content {
+    background: var(--bg-panel);
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    min-width: 400px;
+    animation: scaleIn 0.3s ease;
+}
+
+.create-content h2,
+.save-content h2,
+.settings-content h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: var(--primary-light);
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: var(--text-primary);
+    background: var(--bg-dark);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color var(--transition-fast);
+    font-family: inherit;
+}
+
+.form-group input[type="text"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+}
+
+.form-group input[type="text"]::placeholder {
+    color: var(--text-muted);
+}
+
+.form-buttons,
+.save-buttons,
+.settings-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* 存档项 */
+.saves-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.save-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.save-item:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-light);
+}
+
+.save-info {
+    flex: 1;
+}
+
+.save-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.save-details {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.save-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.save-actions button {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.btn-load {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-delete {
+    background: var(--danger-color);
+    color: white;
+}
+
+.no-saves {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px;
+}
+
+/* 设置项 */
+.settings-form {
+    margin-bottom: 24px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item select {
+    padding: 8px 16px;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* ===============================================
+   游戏UI层
+   =============================================== */
+#game-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+}
+
+#game-ui > * {
+    pointer-events: auto;
+}
+
+/* 顶部状态栏 */
+#top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 20px;
+    background: linear-gradient(180deg, rgba(15, 15, 26, 0.9) 0%, transparent 100%);
+}
+
+.player-info {
+    display: flex;
+    gap: 12px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-light);
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: var(--shadow-glow);
+}
+
+.player-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-row {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+}
+
+.player-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.player-level {
+    font-size: 14px;
+    color: var(--primary-light);
+    font-weight: 500;
+}
+
+/* 血条/蓝条/经验条 */
+.bar-container {
+    width: 200px;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bar-fill {
+    height: 100%;
+    transition: width var(--transition-normal);
+    border-radius: 8px;
+}
+
+.hp-fill {
+    background: linear-gradient(90deg, var(--hp-bg), var(--hp-color));
+    box-shadow: 0 0 10px var(--hp-color);
+}
+
+.mp-fill {
+    background: linear-gradient(90deg, var(--mp-bg), var(--mp-color));
+    box-shadow: 0 0 10px var(--mp-color);
+}
+
+.bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 境界/职业徽章 */
+.player-realm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.realm-badge {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-glow);
+}
+
+.class-badge {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* 顶部按钮组 */
+.top-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background: var(--bg-light);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* ===============================================
+   目标框
+   =============================================== */
+#target-frame {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-panel);
+    border: 2px solid var(--danger-color);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    min-width: 200px;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.target-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.target-name {
+    font-weight: 600;
+    color: var(--danger-color);
+}
+
+.target-level {
+    color: var(--text-secondary);
+}
+
+.target-hp-bar {
+    height: 12px;
+}
+
+.target-hp-fill {
+    background: linear-gradient(90deg, #7f1d1d, var(--danger-color));
+    box-shadow: 0 0 8px var(--danger-color);
+}
+
+/* ===============================================
+   对话框
+   =============================================== */
+#dialog-box {
+    position: absolute;
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    max-width: 90%;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dialog-speaker {
+    font-weight: 600;
+    color: var(--primary-light);
+    font-size: 16px;
+}
+
+.dialog-close {
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+}
+
+.dialog-close:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.dialog-content {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    min-height: 80px;
+}
+
+.dialog-options {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dialog-option {
+    padding: 10px 20px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.dialog-option:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* ===============================================
+   消息区域
+   =============================================== */
+#message-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.game-message {
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    animation: messagePopup 2s ease forwards;
+}
+
+.game-message.success {
+    border: 1px solid var(--success-color);
+    color: var(--success-color);
+}
+
+.game-message.warning {
+    border: 1px solid var(--warning-color);
+    color: var(--warning-color);
+}
+
+.game-message.error {
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+}
+
+.game-message.info {
+    border: 1px solid var(--info-color);
+    color: var(--info-color);
+}
+
+/* 战斗日志 */
+#combat-log {
+    position: absolute;
+    bottom: 140px;
+    left: 20px;
+    width: 300px;
+    max-height: 150px;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.log-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.log-entry {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+}
+
+.log-entry.damage {
+    color: var(--danger-color);
+}
+
+.log-entry.heal {
+    color: var(--success-color);
+}
+
+.log-entry.exp {
+    color: var(--exp-color);
+}
+
+/* ===============================================
+   技能栏
+   =============================================== */
+#skill-bar {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.skill-slot {
+    width: 56px;
+    height: 56px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+}
+
+.skill-slot:hover:not(.locked):not(.on-cooldown) {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-glow);
+}
+
+.skill-slot.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill-slot.on-cooldown {
+    opacity: 0.7;
+}
+
+.skill-slot.active {
+    border-color: var(--success-color);
+    box-shadow: 0 0 10px var(--success-color);
+}
+
+.skill-slot.ultimate {
+    border-color: var(--warning-color);
+}
+
+.skill-key {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.skill-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 4px;
+}
+
+.skill-cooldown {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: var(--radius-md);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+.skill-slot.on-cooldown .skill-cooldown {
+    display: flex;
+    background: rgba(0, 0, 0, 0.5); 
+}
+
+/* 冷却时的动态遮罩效果 */
+.skill-slot.on-cooldown::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--cd-percent, 100%);
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    transition: height 0.1s linear;
+    z-index: 1;
+}
+
+/* MP不足显示为灰色 */
+.skill-slot.no-mp {
+    filter: grayscale(100%);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===============================================
+   经验条
+   =============================================== */
+#exp-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    max-width: 80%;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.exp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--exp-bg), var(--exp-color));
+    box-shadow: 0 0 10px var(--exp-color);
+    transition: width var(--transition-normal);
+}
+
+.exp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ===============================================
+   面板通用样式
+   =============================================== */
+.panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    min-width: 400px;
+    max-width: 90%;
+    max-height: 80%;
+    overflow: hidden;
+    animation: scaleIn 0.3s ease;
+    z-index: 500;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    color: var(--primary-light);
+}
+
+.panel-close {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-close:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.panel-content {
+    padding: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* 角色面板 */
+.char-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.char-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+}
+
+.stat-label {
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--primary-light);
+}
+
+/* 背包格子 */
+.inventory-gold {
+    padding: 12px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.inventory-gold span:last-child {
+    color: var(--exp-color);
+    font-weight: 600;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.inventory-slot {
+    aspect-ratio: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.inventory-slot:hover {
+    border-color: var(--primary-color);
+}
+
+.inventory-slot .item-icon {
+    font-size: 24px;
+}
+
+.inventory-slot .item-count {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+/* 商店物品 */
+.shop-gold {
+    padding: 12px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.shop-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.shop-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.shop-item-icon {
+    font-size: 28px;
+    margin-right: 12px;
+}
+
+.shop-item-info {
+    flex: 1;
+}
+
+.shop-item-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.shop-item-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.shop-item-price {
+    color: var(--exp-color);
+    font-weight: 600;
+}
+
+.shop-item-buy {
+    padding: 8px 16px;
+    margin-left: 12px;
+    background: var(--primary-color);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.shop-item-buy:hover {
+    background: var(--primary-light);
+}
+
+.shop-item-buy:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* 技能面板 */
+.skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.skill-item.locked {
+    opacity: 0.5;
+}
+
+.skill-item-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+.skill-item-info {
+    flex: 1;
+}
+
+.skill-item-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.skill-item-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.skill-item-cost {
+    font-size: 12px;
+    color: var(--mp-color);
+}
+
+/* 任务面板 */
+.quest-item {
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+
+.quest-title {
+    font-weight: 600;
+    color: var(--warning-color);
+    margin-bottom: 8px;
+}
+
+.quest-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.quest-progress {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.quest-complete {
+    color: var(--success-color) !important;
+}
+
+.no-quests {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px;
+}
+
+/* 转职面板 */
+.class-options {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.class-option {
+    flex: 1;
+    max-width: 200px;
+    padding: 20px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.class-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+}
+
+.class-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.class-option h3 {
+    font-size: 18px;
+    color: var(--primary-light);
+    margin-bottom: 8px;
+}
+
+.class-option p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.class-option ul {
+    list-style: none;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.class-option li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+}
+
+.class-option li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+}
+
+.class-select-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--primary-color);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+}
+
+.class-select-btn:hover {
+    background: var(--primary-light);
+}
+
+/* ===============================================
+   游戏内菜单
+   =============================================== */
+#game-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 15, 26, 0.9);
+}
+
+.game-menu-content {
+    background: var(--bg-panel);
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border-color);
+    text-align: center;
+    animation: scaleIn 0.3s ease;
+}
+
+.game-menu-content h2 {
+    margin-bottom: 24px;
+    color: var(--primary-light);
+}
+
+.game-menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ===============================================
+   操作提示
+   =============================================== */
+#controls-hint {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 950;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 15, 26, 0.95);
+}
+
+.hint-content {
+    background: var(--bg-panel);
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border-color);
+    max-width: 500px;
+    animation: scaleIn 0.3s ease;
+}
+
+.hint-content h3 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--primary-light);
+    font-size: 20px;
+}
+
+.hint-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.hint-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hint-item .key {
+    padding: 6px 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: center;
+}
+
+.hint-item .desc {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+#hide-hint {
+    width: 100%;
+}
+
+/* ===============================================
+   确认对话框
+   =============================================== */
+#confirm-dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.confirm-content {
+    background: var(--bg-panel);
+    padding: 30px 40px;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    text-align: center;
+    animation: scaleIn 0.2s ease;
+}
+
+.confirm-content p {
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* ===============================================
+   Toast消息
+   =============================================== */
+#toast-container {
+    position: absolute;
+    top: 100px;
+    right: 20px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    padding: 12px 20px;
+    background: var(--bg-panel);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--info-color);
+    box-shadow: var(--shadow-md);
+    animation: slideInRight 0.3s ease;
+    max-width: 300px;
+}
+
+.toast.success {
+    border-color: var(--success-color);
+}
+
+.toast.warning {
+    border-color: var(--warning-color);
+}
+
+.toast.error {
+    border-color: var(--danger-color);
+}
+
+/* ===============================================
+   伤害数字飘字
+   =============================================== */
+.damage-number {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    animation: damageFloat 1s ease-out forwards;
+    z-index: 1000;
+}
+
+.damage-number.physical {
+    color: var(--danger-color);
+}
+
+.damage-number.magic {
+    color: var(--primary-light);
+}
+
+.damage-number.heal {
+    color: var(--success-color);
+}
+
+.damage-number.critical {
+    font-size: 32px;
+    color: #ff6b6b;
+}
+
+/* ===============================================
+   动画
+   =============================================== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes messagePopup {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes damageFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-30px) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.8);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ===============================================
+   滚动条样式
+   =============================================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* ===============================================
+   响应式
+   =============================================== */
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 48px;
+    }
+    
+    .menu-btn {
+        width: 240px;
+        padding: 14px 24px;
+    }
+    
+    #skill-bar {
+        gap: 4px;
+        padding: 8px 12px;
+    }
+    
+    .skill-slot {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .panel {
+        min-width: 90%;
+    }
+    
+    .class-options {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .class-option {
+        max-width: 100%;
+    }
+    
+    .hint-grid {
+        grid-template-columns: 1fr;
+    }
+}
