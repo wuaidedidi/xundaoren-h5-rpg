@@ -10,6 +10,7 @@ class Renderer {
         this.renderer = null;
         this.raycaster = null;
         this.quality = 'medium';
+        this.sunLight = null;
     }
 
     /**
@@ -17,7 +18,7 @@ class Renderer {
      */
     init(canvas, quality = 'medium') {
         this.quality = quality;
-        
+
         // 创建场景
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x1a1a2e);
@@ -35,7 +36,7 @@ class Renderer {
             antialias: quality !== 'low',
             powerPreference: quality === 'high' ? 'high-performance' : 'default'
         });
-        
+
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(this.getPixelRatio());
         this.renderer.shadowMap.enabled = quality !== 'low';
@@ -68,31 +69,58 @@ class Renderer {
      * 设置光照
      */
     setupLights() {
-        // 环境光
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+        // 环境光 - 稍微调亮一点以补偿方向光角度变化
+        const ambientLight = new THREE.AmbientLight(0x506080, 0.5);
         this.scene.add(ambientLight);
 
-        // 主方向光（太阳光）
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(50, 100, 50);
-        directionalLight.castShadow = this.quality !== 'low';
-        
-        if (directionalLight.castShadow) {
-            directionalLight.shadow.mapSize.width = this.quality === 'high' ? 2048 : 1024;
-            directionalLight.shadow.mapSize.height = this.quality === 'high' ? 2048 : 1024;
-            directionalLight.shadow.camera.near = 10;
-            directionalLight.shadow.camera.far = 200;
-            directionalLight.shadow.camera.left = -50;
-            directionalLight.shadow.camera.right = 50;
-            directionalLight.shadow.camera.top = 50;
-            directionalLight.shadow.camera.bottom = -50;
-        }
-        
-        this.scene.add(directionalLight);
+        // 主方向光（太阳光）- 调整角度使阴影更自然
+        // 从斜上方照射，模拟下午时分的阳光角度
+        this.sunLight = new THREE.DirectionalLight(0xfff5e6, 1.0);
+        // 调整光源位置：从右前方斜上方照射，产生更明显的立体感
+        this.sunLight.position.set(30, 60, 40);
+        this.sunLight.castShadow = this.quality !== 'low';
 
-        // 半球光（天空/地面）
-        const hemisphereLight = new THREE.HemisphereLight(0x8888ff, 0x444422, 0.4);
+        if (this.sunLight.castShadow) {
+            // 增加阴影贴图分辨率以获得更清晰的阴影
+            this.sunLight.shadow.mapSize.width = this.quality === 'high' ? 2048 : 1024;
+            this.sunLight.shadow.mapSize.height = this.quality === 'high' ? 2048 : 1024;
+
+            // 调整阴影相机参数以获得更好的阴影覆盖
+            this.sunLight.shadow.camera.near = 0.5;
+            this.sunLight.shadow.camera.far = 200;
+            this.sunLight.shadow.camera.left = -40;
+            this.sunLight.shadow.camera.right = 40;
+            this.sunLight.shadow.camera.top = 40;
+            this.sunLight.shadow.camera.bottom = -40;
+
+            // 调整阴影偏差以减少阴影失真
+            this.sunLight.shadow.bias = -0.0005;
+
+            // 开启阴影相机可视化（调试用，生产环境可关闭）
+            // this.sunLight.shadow.camera.helper = new THREE.CameraHelper(this.sunLight.shadow.camera);
+            // this.scene.add(this.sunLight.shadow.camera.helper);
+        }
+
+        this.scene.add(this.sunLight);
+
+        // 添加一个辅助方向光，从相反方向补光，减少阴影区域的死黑
+        const fillLight = new THREE.DirectionalLight(0x88aadd, 0.3);
+        fillLight.position.set(-30, 40, -30);
+        this.scene.add(fillLight);
+
+        // 半球光（天空/地面）- 调整颜色以配合新的光照角度
+        const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x3d5c3d, 0.5);
         this.scene.add(hemisphereLight);
+    }
+
+    /**
+     * 更新太阳光方向
+     * @param {Object} position - 新的光源位置 {x, y, z}
+     */
+    updateSunPosition(position) {
+        if (this.sunLight) {
+            this.sunLight.position.set(position.x, position.y, position.z);
+        }
     }
 
     /**
@@ -172,7 +200,7 @@ class Renderer {
     setQuality(quality) {
         this.quality = quality;
         this.renderer.setPixelRatio(this.getPixelRatio());
-        
+
         // 更新阴影设置
         this.renderer.shadowMap.enabled = quality !== 'low';
     }
