@@ -342,8 +342,13 @@ class Game {
             );
             
             if (intersects.length > 0) {
-                const hit = intersects[0].object;
-                const entity = hit.userData.entity;
+                let hit = intersects[0].object;
+                let entity = hit.userData.entity;
+                
+                while (!entity && hit.parent) {
+                    hit = hit.parent;
+                    entity = hit.userData.entity;
+                }
                 
                 if (entity) {
                     if (hit.userData.type === 'monster' && !entity.isDead) {
