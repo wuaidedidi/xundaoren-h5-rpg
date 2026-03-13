@@ -600,25 +600,43 @@ export default class EffectsManager {
     playHitEffect(target) {
         if (!target.mesh) return;
         
-        const originalColor = target.mesh.material.color.getHex();
-        target.mesh.material.color.setHex(0xff0000);
-        target.mesh.material.emissive?.setHex(0xff0000);
+        // 如果目标有自己的受击闪烁方法，使用它
+        if (target.playHitFlash && typeof target.playHitFlash === 'function') {
+            target.playHitFlash();
+            return;
+        }
+        
+        // 兼容旧的 mesh.material 方式（玩家、NPC等）
+        const material = target.mainMaterial || target.mesh.material;
+        if (!material) return;
+        
+        const originalColor = material.color.getHex();
+        material.color.setHex(0xff0000);
+        if (material.emissive) {
+            material.emissive.setHex(0xff0000);
+        }
         
         // 震动效果
         const originalPos = target.mesh.position.clone();
         const shake = () => {
-            target.mesh.position.x = originalPos.x + (Math.random() - 0.5) * 0.2;
-            target.mesh.position.z = originalPos.z + (Math.random() - 0.5) * 0.2;
+            if (target.mesh) {
+                target.mesh.position.x = originalPos.x + (Math.random() - 0.5) * 0.2;
+                target.mesh.position.z = originalPos.z + (Math.random() - 0.5) * 0.2;
+            }
         };
         
         const shakeInterval = setInterval(shake, 50);
         
         setTimeout(() => {
             clearInterval(shakeInterval);
-            target.mesh.position.copy(originalPos);
-            target.mesh.material.color.setHex(originalColor);
-            if (target.mesh.material.emissive) {
-                target.mesh.material.emissive.setHex(0x000000);
+            if (target.mesh) {
+                target.mesh.position.copy(originalPos);
+            }
+            if (material) {
+                material.color.setHex(originalColor);
+                if (material.emissive) {
+                    material.emissive.setHex(0x000000);
+                }
             }
         }, 200);
     }
