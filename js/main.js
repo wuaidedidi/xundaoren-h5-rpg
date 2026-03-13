@@ -491,24 +491,28 @@ class Game {
     handleCombatResult(result) {
         if (!result) return;
         
-        // 显示伤害数字
-        if (result.type === 'damage' && this.settings.showDamageNumbers) {
-            let screenPos;
+        if (result.drops && this.effects) {
+            const targetPos = result.target?.mesh?.position || 
+                              new THREE.Vector3(result.target.position.x, 0, result.target.position.z);
             
-            if (result.source === 'player' && result.target) {
-                screenPos = this.renderer.worldToScreen(result.target.mesh.position);
-            } else if (result.source === 'monster') {
-                screenPos = this.renderer.worldToScreen(this.player.mesh.position);
-            }
-            
-            if (screenPos) {
-                this.ui.showDamageNumber(screenPos.x, screenPos.y, result.damage, result.source === 'monster');
-            }
+            result.drops.forEach((drop, index) => {
+                const item = getItem(drop.itemId);
+                if (item) {
+                    setTimeout(() => {
+                        this.effects.createDropAnimation(targetPos, item, (mesh) => {
+                            if (this.player.addItem(item, drop.count)) {
+                                this.ui.showToast(`获得 ${item.name} x${drop.count}`, 'success');
+                            }
+                            this.renderer.scene.remove(mesh);
+                            mesh.geometry.dispose();
+                            mesh.material.dispose();
+                        });
+                    }, index * 100);
+                }
+            });
         }
         
-        // 击杀奖励
         if (result.killed) {
-            // 经验
             if (result.exp) {
                 const expResults = this.player.gainExp(result.exp);
                 this.ui.showExpGain(result.exp);
@@ -522,23 +526,11 @@ class Game {
                 });
             }
             
-            // 金币
             if (result.gold) {
                 this.player.gainGold(result.gold);
                 this.ui.showGoldGain(result.gold);
             }
             
-            // 掉落物品
-            if (result.drops) {
-                result.drops.forEach(drop => {
-                    const item = getItem(drop.itemId);
-                    if (item && this.player.addItem(item, drop.count)) {
-                        this.ui.showToast(`获得 ${item.name} x${drop.count}`, 'success');
-                    }
-                });
-            }
-            
-            // 清除目标
             this.combat.clearTarget();
             this.ui.updateTargetFrame(null);
         }
