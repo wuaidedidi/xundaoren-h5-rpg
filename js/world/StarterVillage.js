@@ -213,13 +213,14 @@ export default class StarterVillage {
         
         npcConfigs.forEach(config => {
             const npc = new NPC(config.id);
-            const mesh = npc.createMesh();
+            npc.setScene(this.scene);
+            npc.createMesh();
             
-            this.scene.add(mesh);
-            
-            if (npc.glowMesh) {
-                this.scene.add(npc.glowMesh);
-            }
+            // 添加所有NPC相关的mesh到场景
+            const meshes = npc.getAllMeshes();
+            meshes.forEach(mesh => {
+                if (mesh) this.scene.add(mesh);
+            });
             
             this.npcs.push(npc);
         });
