@@ -1651,3 +1651,92 @@ html, body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===============================================
+   小地图
+   =============================================== */
+#minimap-container {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    width: 220px;
+    height: 260px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.minimap-title {
+    padding: 8px 12px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.minimap-canvas {
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin: 4px auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.minimap-legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-item.player {
+    color: #00ff88;
+}
+
+.legend-item.npc {
+    color: #4fc3f7;
+}
+
+.legend-item.monster {
+    color: #ff5252;
+}
+
+/* 任务光柱相关样式（用于UI提示） */
+.quest-beacon-indicator {
+    position: absolute;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    color: #ffd700;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.quest-beacon-indicator.main {
+    color: #ffd700;
+    border: 1px solid #ffd700;
+}
+
+.quest-beacon-indicator.side {
+    color: #9c27b0;
+    border: 1px solid #9c27b0;
+}
+
+.quest-beacon-indicator.daily {
+    color: #00bcd4;
+    border: 1px solid #00bcd4;
+}
