@@ -600,9 +600,27 @@ export default class EffectsManager {
     playHitEffect(target) {
         if (!target.mesh) return;
         
-        const originalColor = target.mesh.material.color.getHex();
-        target.mesh.material.color.setHex(0xff0000);
-        target.mesh.material.emissive?.setHex(0xff0000);
+        const meshes = [];
+        if (target.mesh.isGroup) {
+            target.mesh.traverse((obj) => {
+                if (obj.isMesh && obj.material) meshes.push(obj);
+            });
+        } else if (target.mesh.material) {
+            meshes.push(target.mesh);
+        }
+        
+        const savedMaterials = meshes.map(mesh => ({
+            mesh: mesh,
+            color: mesh.material.color.clone(),
+            emissive: mesh.material.emissive ? mesh.material.emissive.clone() : null
+        }));
+        
+        meshes.forEach(mesh => {
+            mesh.material.color.setHex(0xffffff);
+            if (mesh.material.emissive) {
+                mesh.material.emissive.setHex(0xffffff);
+            }
+        });
         
         // 震动效果
         const originalPos = target.mesh.position.clone();
@@ -616,10 +634,12 @@ export default class EffectsManager {
         setTimeout(() => {
             clearInterval(shakeInterval);
             target.mesh.position.copy(originalPos);
-            target.mesh.material.color.setHex(originalColor);
-            if (target.mesh.material.emissive) {
-                target.mesh.material.emissive.setHex(0x000000);
-            }
+            savedMaterials.forEach(saved => {
+                saved.mesh.material.color.copy(saved.color);
+                if (saved.emissive) {
+                    saved.mesh.material.emissive.copy(saved.emissive);
+                }
+            });
         }, 200);
     }
 
