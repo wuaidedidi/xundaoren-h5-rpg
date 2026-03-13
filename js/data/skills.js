@@ -166,7 +166,8 @@ export const SPIRIT_SKILLS = {
         mpCost: 30,
         range: 10,
         healPercent: 0.2,
-        description: '为目标回复20%最大生命值'
+        duration: 0,
+        description: '立即回复20%最大生命值'
     },
     soulFear: {
         id: 'soulFear',
