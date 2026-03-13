@@ -36,13 +36,19 @@ graph LR
 
 ## 🚀 快速启动
 
-使用本地服务器启动（项目使用 ES Module，需要 HTTP 服务器）：
+使用 Docker + Nginx 启动（自动禁用浏览器缓存）：
 
 ```bash
-npx http-server . -p 3000
+# 方式一：docker-compose 一键启动
+docker-compose up -d
+
+# 方式二：手动构建运行
+cd frontend
+docker build -t xundaoren-h5-rpg .
+docker run -d -p 3050:80 xundaoren-h5-rpg
 ```
 
-访问：http://localhost:3000
+访问：http://localhost:3050
 
 > 无需安装任何依赖，无需构建步骤。Three.js 已下载到本地 `js/lib/` 目录。
 

@@ -6,6 +6,7 @@
 import { getRealmByLevel, getExpRequired, getRealmBonus } from '../data/realms.js';
 import { getClass, getSpecialization } from '../data/classes.js';
 import { getBaseSkills, getClassSkills } from '../data/skills.js';
+import Renderer from '../core/Renderer.js';
 
 export default class Player {
     constructor(name = '玩家') {
@@ -69,6 +70,7 @@ export default class Player {
         // 3D对象
         this.mesh = null;
         this.nameTag = null;
+        this.selfIndicator = null;
         
         // 标记
         this.tutorialComplete = false;
@@ -245,7 +247,29 @@ export default class Player {
         this.mesh.receiveShadow = true;
         this.mesh.userData = { type: 'player', entity: this };
         
+        this.createSelfIndicator();
+        
         return this.mesh;
+    }
+
+    createSelfIndicator() {
+        const triangleShape = new THREE.Shape();
+        triangleShape.moveTo(0, -0.3);
+        triangleShape.lineTo(-0.3, 0.3);
+        triangleShape.lineTo(0.3, 0.3);
+        triangleShape.lineTo(0, -0.3);
+        
+        const geometry = new THREE.ShapeGeometry(triangleShape);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.8,
+            side: THREE.DoubleSide
+        });
+        
+        this.selfIndicator = new THREE.Mesh(geometry, material);
+        this.selfIndicator.position.set(0, 1.6, 0);
+        this.mesh.add(this.selfIndicator);
     }
 
     /**
@@ -272,6 +296,11 @@ export default class Player {
             this.mesh.position.x = this.position.x;
             this.mesh.position.z = this.position.z;
             this.mesh.rotation.y = this.rotation;
+        }
+        
+        // 让自我标识始终面向相机
+        if (this.selfIndicator && Renderer.camera) {
+            this.selfIndicator.lookAt(Renderer.camera.position);
         }
         
         // 更新buff持续时间
