@@ -283,6 +283,13 @@ export default class StarterVillage {
     }
 
     /**
+     * 获取地面对象（用于射线检测）
+     */
+    getGroundObjects() {
+        return [this.ground];
+    }
+
+    /**
      * 获取存活的怪物
      */
     getAliveMonsters() {
