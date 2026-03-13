@@ -158,13 +158,23 @@ export default class UIManager {
             return;
         }
         
-        this.elements.targetFrame.classList.remove('hidden');
-        if (this.elements.targetName) this.elements.targetName.textContent = target.name;
-        if (this.elements.targetLevel) this.elements.targetLevel.textContent = `Lv.${target.level}`;
+        // 确保目标有必要的属性
+        if (!target.name || target.level === undefined || target.hp === undefined || target.maxHp === undefined) {
+            console.warn('目标对象缺少必要属性:', target);
+            return;
+        }
         
-        const hpPercent = (target.hp / target.maxHp) * 100;
-        if (this.elements.targetHpFill) this.elements.targetHpFill.style.width = `${hpPercent}%`;
-        if (this.elements.targetHpText) this.elements.targetHpText.textContent = `${Math.floor(target.hp)} / ${target.maxHp}`;
+        try {
+            this.elements.targetFrame.classList.remove('hidden');
+            if (this.elements.targetName) this.elements.targetName.textContent = target.name;
+            if (this.elements.targetLevel) this.elements.targetLevel.textContent = `Lv.${target.level}`;
+            
+            const hpPercent = target.maxHp > 0 ? (target.hp / target.maxHp) * 100 : 0;
+            if (this.elements.targetHpFill) this.elements.targetHpFill.style.width = `${hpPercent}%`;
+            if (this.elements.targetHpText) this.elements.targetHpText.textContent = `${Math.floor(target.hp)} / ${target.maxHp}`;
+        } catch (e) {
+            console.error('更新目标框时出错:', e);
+        }
     }
 
     /**
