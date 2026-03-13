@@ -234,17 +234,32 @@ export default class Player {
     createMesh() {
         // 创建圆柱体（角色）
         const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1.8, 16);
-        const material = new THREE.MeshLambertMaterial({ 
+        const material = new THREE.MeshLambertMaterial({
             color: 0x00aaff,
             emissive: 0x002244
         });
-        
+
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.set(this.position.x, this.position.y + 0.9, this.position.z);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
         this.mesh.userData = { type: 'player', entity: this };
-        
+
+        // 创建头顶倒三角标识（用于区分自己）
+        const triangleGeometry = new THREE.ConeGeometry(0.3, 0.5, 3);
+        const triangleMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        this.selfIndicator = new THREE.Mesh(triangleGeometry, triangleMaterial);
+        this.selfIndicator.position.set(0, 1.4, 0);
+        this.selfIndicator.rotation.x = Math.PI;
+        this.selfIndicator.rotation.y = Math.PI;
+
+        this.mesh.add(this.selfIndicator);
+
         return this.mesh;
     }
 
