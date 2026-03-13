@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  xundaoren-h5-rpg:
+    build: ./frontend
+    ports:
+      - "3050:80"
+    restart: unless-stopped
