@@ -174,9 +174,12 @@ class Game {
         // 创建玩家
         this.player = new Player(playerName);
         
+        // 初始化效果管理器
+        this.effects = new EffectsManager(this.renderer.scene);
+        
         // 创建世界
         this.world = new StarterVillage();
-        this.world.create(this.renderer.scene);
+        this.world.create(this.renderer.scene, this.effects);
         
         // 创建玩家模型
         const playerMesh = this.player.createMesh();
@@ -185,9 +188,6 @@ class Game {
         // 初始化战斗系统
         this.combat = new CombatSystem(this);
         this.combat.init(this.player);
-        
-        // 初始化效果管理器
-        this.effects = new EffectsManager(this.renderer.scene);
         this.combat.setEffectsManager(this.effects);
         
         // 保存初始存档
@@ -217,9 +217,12 @@ class Game {
         this.player = new Player();
         this.player.loadFromSaveData(saveData.player);
         
+        // 初始化效果管理器
+        this.effects = new EffectsManager(this.renderer.scene);
+        
         // 创建世界
         this.world = new StarterVillage();
-        this.world.create(this.renderer.scene);
+        this.world.create(this.renderer.scene, this.effects);
         
         // 创建玩家模型
         const playerMesh = this.player.createMesh();
@@ -228,9 +231,6 @@ class Game {
         // 初始化战斗系统
         this.combat = new CombatSystem(this);
         this.combat.init(this.player);
-        
-        // 初始化效果管理器
-        this.effects = new EffectsManager(this.renderer.scene);
         this.combat.setEffectsManager(this.effects);
         
         this.currentSaveId = saveId;
