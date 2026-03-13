@@ -163,6 +163,10 @@ export default class CombatSystem {
             if (skill.cooldown > 0) {
                 this.player.skillCooldowns[skillId] = skill.cooldown * 1000;
             }
+            
+            // 记录技能使用时间和类型
+            this.player.lastSkillTime = Date.now();
+            this.player.lastSkillType = skill.type;
         }
         
         return result;
