@@ -115,7 +115,7 @@ export default class CombatSystem {
             source: 'player',
             target: this.target,
             damage: actualDamage,
-            skill: null
+            skill: { type: 'physical' } // 标记为物理攻击，用于触发动画
         };
         
         // 检查目标死亡
