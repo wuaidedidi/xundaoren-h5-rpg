@@ -39,6 +39,15 @@ export default class StarterVillage {
             ]},
             { monsterId: 'stoneGolem', positions: [
                 { x: 0, y: 0, z: -22 }
+            ]},
+            { monsterId: 'eliteRabbitDemon', positions: [
+                { x: -15, y: 0, z: -10 }
+            ]},
+            { monsterId: 'eliteWoodSpirit', positions: [
+                { x: 18, y: 0, z: -15 }
+            ]},
+            { monsterId: 'eliteStoneGolem', positions: [
+                { x: 5, y: 0, z: -18 }
             ]}
         ];
     }
