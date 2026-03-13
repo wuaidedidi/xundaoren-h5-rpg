@@ -255,18 +255,18 @@ export default class Player {
         // 移动处理
         if (direction.x !== 0 || direction.z !== 0) {
             const moveSpeed = this.speed * deltaTime * 5;
-            
+
             this.position.x += direction.x * moveSpeed;
             this.position.z += direction.z * moveSpeed;
-            
+
             // 旋转朝向移动方向
             this.rotation = Math.atan2(direction.x, direction.z);
-            
+
             this.isMoving = true;
         } else {
             this.isMoving = false;
         }
-        
+
         // 更新3D对象
         if (this.mesh) {
             this.mesh.position.x = this.position.x;
