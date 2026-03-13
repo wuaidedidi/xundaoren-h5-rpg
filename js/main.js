@@ -406,62 +406,66 @@ class Game {
      * 更新游戏状态
      */
     update(deltaTime) {
-        // 获取移动输入
-        const direction = this.input.getMovementDirection();
-        
-        // 更新玩家
-        this.player.update(deltaTime, direction);
-        
-        // 边界限制
-        this.player.clampPosition(
-            this.world.bounds.minX + 1,
-            this.world.bounds.maxX - 1,
-            this.world.bounds.minZ + 1,
-            this.world.bounds.maxZ - 1
-        );
-        
-        // 更新相机
-        this.renderer.updateCamera(this.player.mesh.position);
-        
-        // 更新世界和获取怪物攻击
-        const monsterAttacks = this.world.update(deltaTime, this.player);
-        
-        // 处理怪物攻击
-        monsterAttacks.forEach(attack => {
-            const result = this.combat.processMonsterAttack(attack);
-            this.handleCombatResult(result);
-        });
-        
-        // 更新战斗系统
-        const combatResult = this.combat.update(deltaTime);
-        if (combatResult) {
-            this.handleCombatResult(combatResult);
-        }
-        
-        // 更新视觉效果
-        if (this.effects) {
-            this.effects.update(deltaTime);
-        }
-        
-        // 更新UI
-        this.ui.updatePlayerHUD(this.player);
-        this.ui.updateSkillBar(this.player);
-        
-        // 更新目标框
-        if (this.combat.target) {
-            this.ui.updateTargetFrame(this.combat.target);
-        }
-        
-        // 自动保存（每60秒）
-        this.autoSaveTimer = (this.autoSaveTimer || 0) + deltaTime;
-        if (this.autoSaveTimer >= 60) {
-            this.autoSaveTimer = 0;
-            this.autoSave();
-        }
-        
-        // 检查玩家死亡
-        if (this.player.hp <= 0) {
-            this.handlePlayerDeath();
+        try {
+            // 获取移动输入
+            const direction = this.input.getMovementDirection();
+            
+            // 更新玩家
+            this.player.update(deltaTime, direction);
+            
+            // 边界限制
+            this.player.clampPosition(
+                this.world.bounds.minX + 1,
+                this.world.bounds.maxX - 1,
+                this.world.bounds.minZ + 1,
+                this.world.bounds.maxZ - 1
+            );
+            
+            // 更新相机
+            this.renderer.updateCamera(this.player.mesh.position);
+            
+            // 更新世界和获取怪物攻击
+            const monsterAttacks = this.world.update(deltaTime, this.player);
+            
+            // 处理怪物攻击
+            monsterAttacks.forEach(attack => {
+                const result = this.combat.processMonsterAttack(attack);
+                this.handleCombatResult(result);
+            });
+            
+            // 更新战斗系统
+            const combatResult = this.combat.update(deltaTime);
+            if (combatResult) {
+                this.handleCombatResult(combatResult);
+            }
+            
+            // 更新视觉效果
+            if (this.effects) {
+                this.effects.update(deltaTime);
+            }
+            
+            // 更新UI
+            this.ui.updatePlayerHUD(this.player);
+            this.ui.updateSkillBar(this.player);
+            
+            // 更新目标框
+            if (this.combat.target) {
+                this.ui.updateTargetFrame(this.combat.target);
+            }
+            
+            // 自动保存（每60秒）
+            this.autoSaveTimer = (this.autoSaveTimer || 0) + deltaTime;
+            if (this.autoSaveTimer >= 60) {
+                this.autoSaveTimer = 0;
+                this.autoSave();
+            }
+            
+            // 检查玩家死亡
+            if (this.player.hp <= 0) {
+                this.handlePlayerDeath();
+            }
+        } catch (error) {
+            console.error('游戏更新出错:', error);
         }
     }
 

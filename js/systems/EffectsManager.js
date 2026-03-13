@@ -720,76 +720,100 @@ export default class EffectsManager {
             
             // 更新目标选中圈位置
             if (this.currentTarget && this.currentTarget.mesh && this.targetIndicator) {
-                this.targetIndicator.position.set(
-                    this.currentTarget.mesh.position.x,
-                    0.05,
-                    this.currentTarget.mesh.position.z
-                );
-                // 旋转动画
-                this.targetIndicator.rotation.z += deltaTime * 2;
+                try {
+                    this.targetIndicator.position.set(
+                        this.currentTarget.mesh.position.x,
+                        0.05,
+                        this.currentTarget.mesh.position.z
+                    );
+                    // 旋转动画
+                    this.targetIndicator.rotation.z += deltaTime * 2;
+                } catch (e) {
+                    console.warn('更新目标指示器错误:', e);
+                }
             }
         
-        // 更新粒子
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-            const p = this.particles[i];
-            p.elapsed += dt;
-            
-            if (p.elapsed >= p.lifetime) {
-                this.scene.remove(p.points);
-                p.points.geometry.dispose();
-                p.points.material.dispose();
-                this.particles.splice(i, 1);
-                continue;
+            // 更新粒子
+            for (let i = this.particles.length - 1; i >= 0; i--) {
+                try {
+                    const p = this.particles[i];
+                    p.elapsed += dt;
+                    
+                    if (p.elapsed >= p.lifetime) {
+                        this.scene.remove(p.points);
+                        if (p.points.geometry) p.points.geometry.dispose();
+                        if (p.points.material) p.points.material.dispose();
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // 更新粒子位置
+                    if (p.points.geometry && p.points.geometry.attributes.position) {
+                        const positions = p.points.geometry.attributes.position.array;
+                        for (let j = 0; j < p.velocities.length; j++) {
+                            const j3 = j * 3;
+                            const vel = p.velocities[j];
+                            positions[j3] += vel.x * deltaTime;
+                            positions[j3 + 1] += vel.y * deltaTime;
+                            positions[j3 + 2] += vel.z * deltaTime;
+                            vel.y += p.gravity * deltaTime;
+                        }
+                        p.points.geometry.attributes.position.needsUpdate = true;
+                    }
+                    
+                    // 淡出
+                    const progress = p.elapsed / p.lifetime;
+                    if (p.points.material) {
+                        p.points.material.opacity = 1 - progress;
+                    }
+                } catch (e) {
+                    console.warn('更新粒子错误:', e);
+                    // 移除有问题的粒子
+                    this.particles.splice(i, 1);
+                }
             }
-            
-            // 更新粒子位置
-            const positions = p.points.geometry.attributes.position.array;
-            for (let j = 0; j < p.velocities.length; j++) {
-                const j3 = j * 3;
-                const vel = p.velocities[j];
-                positions[j3] += vel.x * deltaTime;
-                positions[j3 + 1] += vel.y * deltaTime;
-                positions[j3 + 2] += vel.z * deltaTime;
-                vel.y += p.gravity * deltaTime;
-            }
-            p.points.geometry.attributes.position.needsUpdate = true;
-            
-            // 淡出
-            const progress = p.elapsed / p.lifetime;
-            p.points.material.opacity = 1 - progress;
-        }
         
-        // 更新动画
-        for (let i = this.animations.length - 1; i >= 0; i--) {
-            const anim = this.animations[i];
-            anim.elapsed += dt;
-            const progress = Math.min(anim.elapsed / anim.duration, 1);
-            
-            switch (anim.type) {
-                case 'expand':
-                    const scale = anim.startScale + (anim.endScale - anim.startScale) * progress;
-                    anim.object.scale.set(scale, scale, 1);
-                    anim.object.material.opacity = 1 - progress;
-                    break;
+            // 更新动画
+            for (let i = this.animations.length - 1; i >= 0; i--) {
+                try {
+                    const anim = this.animations[i];
+                    anim.elapsed += dt;
+                    const progress = Math.min(anim.elapsed / anim.duration, 1);
                     
-                case 'fadeOut':
-                    anim.object.material.opacity = 1 - progress;
-                    break;
+                    if (anim.object && anim.object.material) {
+                        switch (anim.type) {
+                            case 'expand':
+                                const scale = anim.startScale + (anim.endScale - anim.startScale) * progress;
+                                anim.object.scale.set(scale, scale, 1);
+                                anim.object.material.opacity = 1 - progress;
+                                break;
+                                
+                            case 'fadeOut':
+                                anim.object.material.opacity = 1 - progress;
+                                break;
+                                
+                            case 'moveTo':
+                                anim.object.position.lerpVectors(anim.startPos, anim.endPos, progress);
+                                anim.object.position.y = 1 + Math.sin(progress * Math.PI) * 0.5;
+                                break;
+                        }
+                    }
                     
-                case 'moveTo':
-                    anim.object.position.lerpVectors(anim.startPos, anim.endPos, progress);
-                    anim.object.position.y = 1 + Math.sin(progress * Math.PI) * 0.5;
-                    break;
+                    if (progress >= 1) {
+                        this.scene.remove(anim.object);
+                        if (anim.object) {
+                            if (anim.object.geometry) anim.object.geometry.dispose();
+                            if (anim.object.material) anim.object.material.dispose();
+                        }
+                        if (anim.onComplete) anim.onComplete();
+                        this.animations.splice(i, 1);
+                    }
+                } catch (e) {
+                    console.warn('更新动画错误:', e);
+                    // 移除有问题的动画
+                    this.animations.splice(i, 1);
+                }
             }
-            
-            if (progress >= 1) {
-                this.scene.remove(anim.object);
-                anim.object.geometry?.dispose();
-                anim.object.material?.dispose();
-                if (anim.onComplete) anim.onComplete();
-                this.animations.splice(i, 1);
-            }
-        }
         } catch (e) {
             console.warn('效果更新错误:', e);
         }
