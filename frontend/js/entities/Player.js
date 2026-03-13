@@ -232,7 +232,6 @@ export default class Player {
      * 创建3D模型
      */
     createMesh() {
-        // 创建圆柱体（角色）
         const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1.8, 16);
         const material = new THREE.MeshLambertMaterial({ 
             color: 0x00aaff,
@@ -244,6 +243,16 @@ export default class Player {
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
         this.mesh.userData = { type: 'player', entity: this };
+        
+        const indicatorGeometry = new THREE.ConeGeometry(0.25, 0.4, 4);
+        const indicatorMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x00ff00,
+            side: THREE.DoubleSide
+        });
+        this.indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+        this.indicator.rotation.x = Math.PI;
+        this.indicator.position.y = 1.3;
+        this.mesh.add(this.indicator);
         
         return this.mesh;
     }
