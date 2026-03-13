@@ -221,6 +221,18 @@ export default class StarterVillage {
                 this.scene.add(npc.glowMesh);
             }
             
+            npc.accessories.forEach(acc => {
+                this.scene.add(acc);
+            });
+            
+            if (npc.furnaceParticles) {
+                this.scene.add(npc.furnaceParticles);
+            }
+            
+            if (npc.spiritParticles) {
+                this.scene.add(npc.spiritParticles);
+            }
+            
             this.npcs.push(npc);
         });
         
