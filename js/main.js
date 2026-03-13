@@ -332,7 +332,7 @@ class Game {
      * 绑定输入事件
      */
     bindInputEvents() {
-        // 鼠标点击选中目标
+        // 鼠标点击选中目标或移动
         this.input.on('click', (mouse, event) => {
             if (this.ui.isDialogOpen) return;
             
@@ -349,13 +349,64 @@ class Game {
                     if (hit.userData.type === 'monster' && !entity.isDead) {
                         this.combat.setTarget(entity);
                         this.ui.updateTargetFrame(entity);
+                        this.player.stopAutoMove();
                     } else if (hit.userData.type === 'npc') {
                         this.interactWithNPC(entity);
                     }
                 }
             } else {
-                this.combat.clearTarget();
-                this.ui.updateTargetFrame(null);
+                // 点击地面，进行移动
+                const groundIntersects = this.renderer.raycast(
+                    { x: mouse.x, y: mouse.y },
+                    [this.world.ground]
+                );
+                
+                if (groundIntersects.length > 0) {
+                    const point = groundIntersects[0].point;
+                    
+                    // 边界检查
+                    const clampedPos = this.world.clampToBounds({
+                        x: point.x,
+                        z: point.z
+                    });
+                    
+                    // 设置玩家移动目标
+                    this.player.moveTo(clampedPos);
+                    
+                    // 创建点击标记效果
+                    this.effects.createClickMarker(clampedPos);
+                    
+                    // 清除战斗目标
+                    this.combat.clearTarget();
+                    this.ui.updateTargetFrame(null);
+                }
+            }
+        });
+        
+        // 鼠标悬停检测
+        this.input.on('mousemove', (mouse, event) => {
+            if (this.ui.isDialogOpen) return;
+            
+            const intersects = this.renderer.raycast(
+                { x: mouse.x, y: mouse.y },
+                this.world.getSelectableObjects()
+            );
+            
+            if (intersects.length > 0) {
+                const hit = intersects[0].object;
+                const entity = hit.userData.entity;
+                
+                if (entity && (hit.userData.type === 'monster' || hit.userData.type === 'npc')) {
+                    if (hit.userData.type === 'monster' && entity.isDead) {
+                        this.effects.clearHoverOutline();
+                        return;
+                    }
+                    this.effects.setHoverOutline(entity);
+                } else {
+                    this.effects.clearHoverOutline();
+                }
+            } else {
+                this.effects.clearHoverOutline();
             }
         });
         
@@ -363,6 +414,7 @@ class Game {
         this.input.on('rightclick', () => {
             this.combat.clearTarget();
             this.ui.updateTargetFrame(null);
+            this.player.stopAutoMove();
         });
         
         // 技能快捷键
